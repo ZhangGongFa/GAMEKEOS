@@ -12,11 +12,7 @@
     <!-- No external font imports; rely on system fonts for consistent rendering -->
     <style>
         /*
-         * To make the game feel more like a polished mobile title we've
-         * layered subtle gradients, patterns and glow effects onto the
-         * container and controls. These enhancements do not alter the
-         * core logic of the game but dramatically improve the first
-         * impression and readability on both desktop and phones.
+         * UPGRADE: Enhanced visual effects and animations for a more polished experience
          */
         html, body {
             height: 100%;
@@ -25,16 +21,18 @@
         }
         body {
             overflow: hidden;
-            /* Use system fonts to avoid remote font loading errors */
-            font-family: system-ui, sans-serif;
-            /* A warm radial gradient for the background */
-            background: radial-gradient(circle at 50% 20%, #fff9f0 0%, #ffe4c3 100%);
-            /* Subtle diagonal stripes to break up large flat areas */
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            /* Enhanced background with multiple gradient layers */
+            background: radial-gradient(circle at 50% 20%, #fff9f0 0%, #ffe4c3 50%, #ffcc99 100%);
+            /* Animated background pattern */
             background-image: repeating-linear-gradient(45deg,
                 rgba(255,255,255,0.05) 0, rgba(255,255,255,0.05) 6px,
                 rgba(255,255,255,0) 6px, rgba(255,255,255,0) 12px);
-            touch-action: none; /* prevent native scrolling */
+            touch-action: none;
             user-select: none;
+            /* Smooth font rendering */
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         #game-container {
@@ -48,19 +46,31 @@
             box-sizing: border-box;
         }
 
-        /* The canvas is wrapped in a soft border and glow. */
+        /* UPGRADE: Enhanced canvas with better shadows and hover effects */
         canvas {
-            background: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.9);
             border-radius: 24px;
-            /* Gradient border around the canvas */
             border: 4px solid transparent;
-            border-image: linear-gradient(60deg, #ffb74d, #ff9800, #fb8c00) 1;
-            /* Outer glow */
-            box-shadow: 0 8px 24px rgba(0,0,0,0.15), 0 0 20px rgba(255,143,0,0.35);
+            border-image: linear-gradient(60deg, #ffb74d, #ff9800, #fb8c00, #e65100) 1;
+            /* Enhanced shadow with multiple layers */
+            box-shadow: 
+                0 8px 32px rgba(0,0,0,0.15), 
+                0 0 20px rgba(255,143,0,0.35),
+                inset 0 0 20px rgba(255,255,255,0.5);
             display: block;
+            /* Smooth transition for hover effects */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        canvas:hover {
+            transform: scale(1.01);
+            box-shadow: 
+                0 12px 40px rgba(0,0,0,0.2), 
+                0 0 30px rgba(255,143,0,0.5),
+                inset 0 0 20px rgba(255,255,255,0.6);
         }
 
-        /* Start and game over screens share common styles */
+        /* UPGRADE: Enhanced UI screens with better animations */
         .ui-screen {
             position: absolute;
             top: 0;
@@ -73,67 +83,130 @@
             align-items: center;
             text-align: center;
             z-index: 10;
-            /* Frosted glass effect behind the overlay */
-            background: rgba(255, 245, 230, 0.94);
-            backdrop-filter: blur(4px);
+            /* Enhanced frosted glass effect */
+            background: rgba(255, 245, 230, 0.95);
+            backdrop-filter: blur(8px);
             padding: 0 20px;
             box-sizing: border-box;
+            /* Fade in animation */
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
 
         .hidden {
             display: none !important;
         }
 
+        /* UPGRADE: Enhanced typography with better animations */
         h1 {
             font-weight: 900;
-            font-size: 3.2rem;
+            font-size: clamp(2.5rem, 8vw, 4rem);
             color: #e65100;
-            margin-bottom: 6px;
-            text-shadow: 2px 2px 0px #fff;
+            margin-bottom: 10px;
+            /* Enhanced text shadow */
+            text-shadow: 
+                2px 2px 0px #fff,
+                4px 4px 8px rgba(0,0,0,0.1);
             text-transform: uppercase;
+            /* Gradient text effect */
+            background: linear-gradient(45deg, #e65100, #ff6d00, #ff8f00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            /* Pulse animation */
+            animation: pulse 2s infinite;
         }
+        
         h2 {
             font-weight: 700;
             color: #555;
             margin-bottom: 24px;
+            font-size: clamp(1rem, 4vw, 1.5rem);
         }
-        input[type="text"], select {
-            padding: 12px 20px;
+        
+        /* UPGRADE: Enhanced input styling */
+        input[type="text"] {
+            padding: 14px 24px;
             font-size: 1.1rem;
-            border: 2px solid #ffcc80;
+            border: 3px solid #ffcc80;
             border-radius: 40px;
             outline: none;
-            width: 260px;
+            width: 280px;
             text-align: center;
             margin-bottom: 16px;
-            transition: 0.3s;
-            font-family: system-ui, sans-serif;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            background: rgba(255,255,255,0.9);
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.1);
         }
-        input:focus, select:focus {
+        input:focus {
             border-color: #e65100;
-            box-shadow: 0 0 12px rgba(230, 81, 0, 0.25);
+            box-shadow: 
+                0 0 16px rgba(230, 81, 0, 0.4),
+                inset 0 2px 8px rgba(0,0,0,0.1);
+            transform: scale(1.02);
         }
+        
+        /* UPGRADE: Enhanced button styling */
         button {
-            padding: 14px 36px;
+            padding: 16px 40px;
             font-size: 1.4rem;
             font-weight: 900;
-            background: #e65100;
+            background: linear-gradient(45deg, #e65100, #ff6d00);
             color: white;
             border: none;
             border-radius: 50px;
             cursor: pointer;
-            box-shadow: 0 6px 16px rgba(230, 81, 0, 0.3);
-            transition: transform 0.15s, background 0.3s;
+            box-shadow: 
+                0 8px 20px rgba(230, 81, 0, 0.4),
+                inset 0 2px 4px rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+        
         button:hover {
-            background: #ff6d00;
-            transform: scale(1.05);
+            background: linear-gradient(45deg, #ff6d00, #ff8f00);
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 
+                0 12px 28px rgba(230, 81, 0, 0.5),
+                inset 0 2px 4px rgba(255,255,255,0.3);
         }
+        
+        button:hover::before {
+            left: 100%;
+        }
+        
         button:active {
-            transform: scale(0.92);
+            transform: scale(0.98) translateY(0);
         }
 
-        /* HUD (Heads‑up display) positioned along the top */
+        /* UPGRADE: Enhanced HUD with better styling */
         #hud {
             position: absolute;
             top: 16px;
@@ -147,19 +220,24 @@
             justify-content: space-between;
             align-items: center;
             font-weight: 900;
-            font-size: 1.5rem;
+            font-size: clamp(1.2rem, 4vw, 1.6rem);
             color: #e65100;
-            padding: 10px 20px;
-            border-radius: 20px;
-            background: rgba(255,245,230,0.85);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 12px 24px;
+            border-radius: 24px;
+            background: rgba(255,245,230,0.9);
+            box-shadow: 
+                0 6px 16px rgba(0,0,0,0.15),
+                inset 0 2px 4px rgba(255,255,255,0.5);
+            backdrop-filter: blur(4px);
         }
         #lives-container {
             color: #d32f2f;
-            font-size: 1.8rem;
+            font-size: clamp(1.5rem, 5vw, 2rem);
+            /* Bounce animation for lives */
+            animation: bounce 1s infinite;
         }
 
-        /* Countdown overlay displayed before the game starts */
+        /* UPGRADE: Enhanced countdown overlay */
         #countdown-overlay {
             position: absolute;
             top: 0;
@@ -170,17 +248,71 @@
             justify-content: center;
             align-items: center;
             z-index: 20;
-            font-size: 5rem;
+            font-size: clamp(4rem, 20vw, 8rem);
             font-weight: 900;
             color: #e65100;
-            /* Semi‑transparent background to draw attention */
-            background: rgba(255, 245, 230, 0.9);
+            background: rgba(255, 245, 230, 0.95);
+            /* Enhanced text effects */
+            text-shadow: 
+                4px 4px 0px #fff,
+                8px 8px 16px rgba(0,0,0,0.2);
+            /* Scale animation */
+            animation: countdownPulse 1s ease-in-out;
         }
 
+        @keyframes countdownPulse {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* UPGRADE: Mobile-specific optimizations */
+        @media (max-width: 768px) {
+            body {
+                /* Better mobile background */
+                background: radial-gradient(circle at 50% 20%, #fff9f0 0%, #ffe4c3 100%);
+            }
+            
+            canvas {
+                border-radius: 16px;
+                border-width: 3px;
+                /* Better mobile shadow */
+                box-shadow: 
+                    0 6px 20px rgba(0,0,0,0.15), 
+                    0 0 15px rgba(255,143,0,0.3);
+            }
+            
+            button {
+                padding: 14px 32px;
+                font-size: 1.2rem;
+            }
+            
+            input[type="text"] {
+                width: 260px;
+                padding: 12px 20px;
+            }
+        }
+
+        /* UPGRADE: Difficulty indicator */
+        .difficulty-indicator {
+            position: absolute;
+            top: 80px;
+            left: 16px;
+            right: 16px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #666;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .difficulty-indicator.show {
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
-    <!-- Preload game assets so there is no delay mid‑game -->
+    <!-- Preload game assets so there is no delay mid-game -->
     <div style="display:none;">
         <!-- Bowl assets: separate images for empty and full bowls -->
         <img id="img-bowl-empty" src="bowl_empty.png" alt="Empty bowl">
@@ -204,8 +336,9 @@
             <h1>KEOS CATCH</h1>
             <h2>Hứng Hạt Ngon – Trọn Dinh Dưỡng</h2>
             <input type="text" id="player-name" placeholder="Nhập tên của bạn..." maxlength="12">
-            <!-- Bowl selection removed. Only one style of bowl is used, with images to indicate whether it has food or not -->
             <button onclick="startGame()">Bắt đầu chơi</button>
+            <!-- UPGRADE: Show device type for debugging -->
+            <p style="margin-top: 20px; font-size: 0.9rem; color: #666;" id="device-info"></p>
         </div>
         <!-- Game Over Screen -->
         <div id="game-over-screen" class="ui-screen hidden">
@@ -225,6 +358,10 @@
                 <div id="lives-container">❤️❤️❤️</div>
             </div>
         </div>
+        <!-- UPGRADE: Difficulty indicator -->
+        <div class="difficulty-indicator" id="difficulty-indicator">
+            Độ khó: <span id="difficulty-level">Bình thường</span>
+        </div>
         <!-- Countdown overlay for starting the game -->
         <div id="countdown-overlay"></div>
 
@@ -235,13 +372,11 @@
 
     <script>
         /*
-         * Game configuration and state variables. These values
-         * control difficulty, scoring, lives and the behaviour of
-         * falling bags. Many of them are updated dynamically
-         * as the game progresses.
+         * UPGRADE: Enhanced game configuration with device detection and balanced difficulty
          */
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
+        
         // Ensure canvas fills the viewport
         function resizeCanvas() {
             canvas.width = window.innerWidth;
@@ -250,20 +385,30 @@
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
+        // UPGRADE: Device detection and configuration
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+        const devicePixelRatio = window.devicePixelRatio || 1;
+        
+        // Show device info
+        document.getElementById('device-info').textContent = isMobile ? 'Đang chơi trên điện thoại' : 'Đang chơi trên máy tính';
+
         let gameRunning = false;
         let score = 0;
-        // Use 3 lives only
         const maxLives = 3;
         let lives = 3;
         let playerName = 'Bạn';
         let highScore = parseInt(localStorage.getItem('keosHighScore') || '0');
         let bags = [];
-        let spawnRate = 120; // frames between spawns (initial value, reduces over time)
+        let spawnRate = 120;
         let frameCount = 0;
         let gameSpeed = 2;
         let animationId;
-        let flashOpacity = 0; // for catch effect
-        let shakeTime = 0;    // frames to shake the bowl
+        let flashOpacity = 0;
+        let shakeTime = 0;
+        
+        // UPGRADE: Additional visual effects
+        let particles = [];
+        let backgroundOffset = 0;
 
         // Preload images into JS variables
         const bagImageElements = [
@@ -278,66 +423,136 @@
             document.getElementById('img-plus-digestive'),
             document.getElementById('img-plus-urinary')
         ];
-        // Images for the bowl states
+        
         const bowlEmptyImage = document.getElementById('img-bowl-empty');
         const bowlFullImage = document.getElementById('img-bowl-full');
 
-        // Bowl object: draws a bitmap bowl (empty or full) based on whether the player
-        // has caught any bags yet. The bowl is positioned near the bottom of the canvas
-        // and scales with the width of the screen.
+        // UPGRADE: Enhanced bowl object with better scaling and effects
         const bowl = {
             x: canvas.width / 2,
-            y: canvas.height - 80, // bottom edge of the bowl. This value will be updated
+            y: canvas.height - 80,
             width: 200,
             height: 100,
             speed: 25,
             hasFood: false,
+            targetX: canvas.width / 2,
+            smoothFactor: isMobile ? 0.15 : 0.25, // Slower on mobile for better control
+            
             draw() {
                 const img = this.hasFood ? bowlFullImage : bowlEmptyImage;
                 if (!img) return;
-                // Compute aspect ratio of the image
+                
                 const ratio = (img.naturalHeight / img.naturalWidth) || 0.45;
-                // Determine bowl size relative to screen size with a maximum cap
-                // Make the bowl smaller so players have more room above and to the sides
-                // Use at most 15% of screen width or 220px, whichever is smaller
-                const maxWidth = Math.min(220, canvas.width * 0.15);
+                
+                // UPGRADE: Better size scaling based on device
+                const baseWidth = isMobile ? 0.18 : 0.15; // Larger on mobile
+                const maxWidth = Math.min(240, canvas.width * baseWidth);
                 const targetWidth = maxWidth;
                 const targetHeight = targetWidth * ratio;
                 this.width = targetWidth;
                 this.height = targetHeight;
-                // Draw the bowl anchored so that its bottom sits at y
+                
                 const drawX = this.x - this.width / 2;
                 const drawY = this.y - this.height;
+                
                 if (img.complete && img.naturalWidth !== 0) {
-                    // Draw with high quality smoothing to keep the image crisp
                     ctx.save();
                     ctx.imageSmoothingEnabled = true;
                     if ('imageSmoothingQuality' in ctx) {
                         ctx.imageSmoothingQuality = 'high';
                     }
+                    
+                    // UPGRADE: Add shadow effect
+                    ctx.shadowColor = 'rgba(0,0,0,0.2)';
+                    ctx.shadowBlur = 10;
+                    ctx.shadowOffsetX = 3;
+                    ctx.shadowOffsetY = 3;
+                    
                     ctx.drawImage(img, drawX, drawY, this.width, this.height);
                     ctx.restore();
                 }
             },
+            
             update() {
+                // UPGRADE: Smooth movement with interpolation
+                this.x += (this.targetX - this.x) * this.smoothFactor;
+                
                 const halfWidth = this.width / 2;
-                if (this.x < halfWidth) this.x = halfWidth;
-                if (this.x > canvas.width - halfWidth) this.x = canvas.width - halfWidth;
-                // Update vertical position relative to canvas height
-                // Position the bowl very close to the bottom edge (keep a tiny margin).
+                if (this.x < halfWidth) {
+                    this.x = halfWidth;
+                    this.targetX = halfWidth;
+                }
+                if (this.x > canvas.width - halfWidth) {
+                    this.x = canvas.width - halfWidth;
+                    this.targetX = canvas.width - halfWidth;
+                }
                 this.y = canvas.height - 20;
+            },
+            
+            // UPGRADE: Set target position for smooth movement
+            setTarget(x) {
+                this.targetX = x;
             }
         };
 
-        // Difficulty scaler: adjust spawn rate and fall speed based on current score
+        // UPGRADE: Enhanced difficulty scaling with device-specific balancing
         function updateDifficulty() {
-            // Increase gameSpeed gradually with score
-            // Gradually increase the falling speed as the score increases.
-            // We start at 2 and add 0.04 per point to avoid becoming too fast too quickly.
-            gameSpeed = 2 + score * 0.04;
-            // Decrease spawn interval as score climbs, but never below 35 frames.
-            // Each point reduces the interval by roughly 1.5 frames to provide a smoother difficulty curve.
-            spawnRate = Math.max(35, 120 - Math.floor(score * 1.5));
+            // Device-specific difficulty scaling
+            const speedMultiplier = isMobile ? 0.03 : 0.04; // Slower speed increase on mobile
+            const spawnReduction = isMobile ? 1.2 : 1.5; // Slower spawn rate reduction
+            
+            gameSpeed = 2 + score * speedMultiplier;
+            spawnRate = Math.max(40, 120 - Math.floor(score * spawnReduction));
+            
+            // Update difficulty indicator
+            updateDifficultyIndicator();
+        }
+        
+        // UPGRADE: Show difficulty level
+        function updateDifficultyIndicator() {
+            const indicator = document.getElementById('difficulty-indicator');
+            const levelText = document.getElementById('difficulty-level');
+            
+            let level = 'Bình thường';
+            if (score > 30) level = 'Khó';
+            if (score > 60) level = 'Rất khó';
+            if (score > 100) level = 'Cực khó';
+            
+            levelText.textContent = level;
+            indicator.classList.add('show');
+        }
+
+        // UPGRADE: Enhanced particle system for visual effects
+        class Particle {
+            constructor(x, y, color = '#FFD700') {
+                this.x = x;
+                this.y = y;
+                this.vx = (Math.random() - 0.5) * 8;
+                this.vy = (Math.random() - 0.5) * 8 - 2;
+                this.life = 1.0;
+                this.color = color;
+                this.size = Math.random() * 6 + 3;
+            }
+            
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += 0.2; // gravity
+                this.life -= 0.02;
+                this.size *= 0.98;
+            }
+            
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.life;
+                ctx.fillStyle = this.color;
+                ctx.shadowColor = this.color;
+                ctx.shadowBlur = 10;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
         }
 
         // Countdown overlay element
@@ -346,14 +561,12 @@
         // Start countdown before game begins
         function startCountdown() {
             let count = 3;
-            // Frequency map for countdown beeps
             const freqMap = {3: 440, 2: 660, 1: 880, 0: 1047};
             countdownOverlay.textContent = count;
             countdownOverlay.style.display = 'flex';
-            // Show HUD during countdown
             document.getElementById('hud').style.display = 'block';
             gameRunning = false;
-            // Play initial beep
+            
             playTone(freqMap[count] || 440, 0.2, 0.4);
             const interval = setInterval(() => {
                 count--;
@@ -367,111 +580,174 @@
                     clearInterval(interval);
                     countdownOverlay.style.display = 'none';
                     gameRunning = true;
-                    // Begin the main loop
                     update();
                 }
             }, 1000);
         }
 
-        // Bag class: each bag knows its image, position, speed and type
+        // UPGRADE: Enhanced Bag class with better visuals
         class Bag {
             constructor() {
-                // Randomly choose an image from the preloaded assets
                 this.img = bagImageElements[Math.floor(Math.random() * bagImageElements.length)];
-                // Base size relative to screen width for responsiveness
-                this.width = Math.max(50, canvas.width * 0.06);
-                // Preserve aspect ratio using natural sizes if available
+                
+                // UPGRADE: Better size scaling
+                const baseSize = isMobile ? 0.08 : 0.06;
+                this.width = Math.max(55, canvas.width * baseSize);
                 const ratio = (this.img.naturalHeight / this.img.naturalWidth) || 1.5;
                 this.height = this.width * ratio;
+                
                 this.x = Math.random() * (canvas.width - this.width);
                 this.y = -this.height;
-                // Speed increases with current game speed and a small random factor
-                this.speed = (Math.random() * 0.5 + 0.8) * gameSpeed;
-                // Rotation for lively falling animation
-                // Reduce rotation amplitude for smoother 2D appearance
+                
+                // UPGRADE: Device-specific speed scaling
+                const baseSpeed = isMobile ? 0.7 : 0.8;
+                this.speed = (Math.random() * 0.5 + baseSpeed) * gameSpeed;
+                
                 this.rotation = (Math.random() - 0.5) * 0.03;
                 this.angle = 0;
-                // Determine type: normal, double score, or extra life
+                
+                // UPGRADE: Better probability distribution
                 const rand = Math.random();
-                if (rand < 0.05) {
+                if (rand < 0.06) {
                     this.type = 'life';
-                } else if (rand < 0.15) {
+                } else if (rand < 0.18) {
                     this.type = 'double';
                 } else {
                     this.type = 'normal';
                 }
+                
+                // UPGRADE: Add glow effect
+                this.glowIntensity = 0;
             }
+            
             draw() {
                 ctx.save();
-                // Ensure images are drawn crisply. Enable high quality smoothing.
                 ctx.imageSmoothingEnabled = true;
                 if ('imageSmoothingQuality' in ctx) {
                     ctx.imageSmoothingQuality = 'high';
                 }
+                
                 ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
                 ctx.rotate(this.angle);
-                // Draw the bag image if loaded, otherwise draw a fallback rectangle
+                
+                // UPGRADE: Add glow effect for special bags
+                if (this.type !== 'normal') {
+                    ctx.shadowColor = this.type === 'life' ? '#00ff00' : '#ffff00';
+                    ctx.shadowBlur = 15;
+                }
+                
                 if (this.img.complete && this.img.naturalWidth !== 0) {
                     ctx.drawImage(this.img, -this.width / 2, -this.height / 2, this.width, this.height);
                 } else {
                     ctx.fillStyle = '#ffd54f';
                     ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
                 }
-                // Overlay icons for special types
+                
+                // Enhanced overlay icons
                 if (this.type === 'double') {
-                    ctx.fillStyle = 'rgba(255, 255, 0, 0.9)';
-                    /* Use a generic sans‑serif font for the overlay text to avoid reliance on remote fonts */
+                    ctx.fillStyle = 'rgba(255, 215, 0, 0.95)';
                     ctx.font = 'bold ' + Math.floor(this.width/3) + 'px sans-serif';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
+                    ctx.shadowColor = '#000';
+                    ctx.shadowBlur = 3;
                     ctx.fillText('×2', 0, 0);
                 } else if (this.type === 'life') {
-                    ctx.fillStyle = 'rgba(0, 200, 83, 0.9)';
+                    ctx.fillStyle = 'rgba(0, 200, 83, 0.95)';
                     ctx.font = 'bold ' + Math.floor(this.width/3.5) + 'px sans-serif';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
+                    ctx.shadowColor = '#000';
+                    ctx.shadowBlur = 3;
                     ctx.fillText('❤️', 0, 0);
                 }
                 ctx.restore();
             }
+            
             update() {
                 this.y += this.speed;
                 this.angle += this.rotation;
             }
         }
 
-        // Input handling: arrow keys and pointer/touch
+        // UPGRADE: Enhanced input handling with better mobile support
         const keys = {};
-        window.addEventListener('keydown', e => { keys[e.code] = true; });
-        window.addEventListener('keyup', e => { keys[e.code] = false; });
+        let lastTouchX = null;
+        
+        window.addEventListener('keydown', e => { 
+            keys[e.code] = true;
+            // Prevent arrow key scrolling
+            if(['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.code)) {
+                e.preventDefault();
+            }
+        });
+        
+        window.addEventListener('keyup', e => { 
+            keys[e.code] = false;
+        });
+        
         function moveBowl(clientX) {
-            if (gameRunning) bowl.x = clientX;
+            if (gameRunning) {
+                // UPGRADE: Use smooth movement instead of direct positioning
+                bowl.setTarget(clientX);
+            }
         }
-        canvas.addEventListener('mousemove', e => moveBowl(e.clientX));
+        
+        // Mouse controls
+        canvas.addEventListener('mousemove', e => {
+            e.preventDefault();
+            moveBowl(e.clientX);
+        });
+        
+        // UPGRADE: Enhanced touch controls
+        canvas.addEventListener('touchstart', e => {
+            e.preventDefault();
+            if (e.touches.length > 0) {
+                lastTouchX = e.touches[0].clientX;
+                moveBowl(e.touches[0].clientX);
+            }
+        }, { passive: false });
+        
         canvas.addEventListener('touchmove', e => {
             e.preventDefault();
-            moveBowl(e.touches[0].clientX);
+            if (e.touches.length > 0) {
+                const touchX = e.touches[0].clientX;
+                // UPGRADE: Better touch responsiveness
+                const deltaX = touchX - lastTouchX;
+                const sensitivity = isMobile ? 1.5 : 1; // Higher sensitivity on mobile
+                moveBowl(bowl.targetX + deltaX * sensitivity);
+                lastTouchX = touchX;
+            }
+        }, { passive: false });
+        
+        canvas.addEventListener('touchend', e => {
+            e.preventDefault();
+            lastTouchX = null;
         }, { passive: false });
 
-        // Audio: generate a simple tone for positive feedback using Web Audio API
+        // Audio setup
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         const audioCtx = new AudioContext();
-        function playTone(frequency, duration, volume=0.3) {
-            const oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            oscillator.type = 'sine';
-            oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
-            gainNode.gain.setValueAtTime(volume, audioCtx.currentTime);
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            oscillator.start();
-            oscillator.stop(audioCtx.currentTime + duration);
+        
+        function playTone(frequency, duration, volume = 0.3) {
+            try {
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+                gainNode.gain.setValueAtTime(volume, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + duration);
+            } catch (e) {
+                console.log('Audio error:', e);
+            }
         }
 
-        // Load the background music element so we can control playback from code
         const bgMusic = document.getElementById('bg-music');
 
-        // Update HUD hearts display
         function updateLivesDisplay() {
             let hearts = '';
             for (let i = 0; i < lives; i++) hearts += '❤️';
@@ -481,26 +757,35 @@
         function loseLife() {
             lives--;
             updateLivesDisplay();
-            // red flash when life lost
             flashOpacity = 0.6;
-            // sound effect for losing life
-            // Play a low-frequency tone as a warning when a bag is missed
             playTone(180, 0.3, 0.45);
+            
+            // UPGRADE: Add particle effect when losing life
+            for (let i = 0; i < 10; i++) {
+                particles.push(new Particle(bowl.x, bowl.y - bowl.height/2, '#ff4444'));
+            }
+            
             if (lives <= 0) {
                 gameOver();
             }
         }
 
-
-        // Main game loop
+        // UPGRADE: Enhanced main game loop with particle system
         function update() {
             if (!gameRunning) return;
+            
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // UPGRADE: Animated background
+            backgroundOffset += 0.5;
+            
             // Move bowl with arrow keys
-            if (keys['ArrowLeft']) bowl.x -= bowl.speed;
-            if (keys['ArrowRight']) bowl.x += bowl.speed;
+            if (keys['ArrowLeft']) bowl.setTarget(bowl.targetX - bowl.speed);
+            if (keys['ArrowRight']) bowl.setTarget(bowl.targetX + bowl.speed);
+            
             bowl.update();
-            // If shaking, apply small random offset
+            
+            // Bowl shake effect
             let originalX = bowl.x;
             let originalY = bowl.y;
             if (shakeTime > 0) {
@@ -509,58 +794,89 @@
                 shakeTime--;
             }
             bowl.draw();
-            // Reset bowl position after drawing if shaken
             bowl.x = originalX;
             bowl.y = originalY;
-            // Update difficulty scaling each frame before spawning new bags
+            
             updateDifficulty();
-            // Spawn new bags at the current spawn interval
+            
             frameCount++;
             if (frameCount % spawnRate === 0) {
                 bags.push(new Bag());
             }
+            
             // Handle bags
             for (let i = 0; i < bags.length; i++) {
                 const bag = bags[i];
                 bag.update();
                 bag.draw();
-                // Collision detection
-                // Compute bowl centre Y because bowl.y represents its bottom edge
+                
                 const bowlCenterY = bowl.y - bowl.height / 2;
                 const distY = (bowlCenterY + bowl.height * 0.15) - (bag.y + bag.height);
                 const distX = Math.abs(bowl.x - (bag.x + bag.width / 2));
+                
                 if (distY < 40 && distY > -bag.height * 0.25 && distX < bowl.width / 2) {
                     // Bag caught!
+                    let points = 1;
+                    let toneFreq = 520;
+                    let particleColor = '#FFD700';
+                    
                     if (bag.type === 'double') {
-                        score += 2;
-                        playTone(880, 0.15, 0.4);
+                        points = 2;
+                        toneFreq = 880;
+                        particleColor = '#FFFF00';
+                        playTone(toneFreq, 0.15, 0.4);
                     } else if (bag.type === 'life') {
                         if (lives < maxLives) {
                             lives++;
                             updateLivesDisplay();
                         }
-                        playTone(660, 0.15, 0.4);
+                        toneFreq = 660;
+                        particleColor = '#00ff00';
+                        playTone(toneFreq, 0.15, 0.4);
                     } else {
-                        score++;
-                        playTone(520, 0.12, 0.35);
+                        playTone(toneFreq, 0.12, 0.35);
                     }
+                    
+                    score += points;
                     document.getElementById('hud-score').innerText = score;
-                    // Trigger flash and shake
+                    
+                    // UPGRADE: Enhanced visual feedback
                     flashOpacity = 0.8;
                     shakeTime = 10;
+                    
+                    // Add particle explosion
+                    for (let j = 0; j < 15; j++) {
+                        particles.push(new Particle(
+                            bag.x + bag.width/2, 
+                            bag.y + bag.height/2, 
+                            particleColor
+                        ));
+                    }
+                    
                     bags.splice(i, 1);
                     i--;
-                    // Bowl now contains food after catching any bag
                     bowl.hasFood = true;
                     continue;
                 }
-                // Remove if falls beyond screen
+                
                 if (bag.y > canvas.height + bag.height) {
                     bags.splice(i, 1);
                     i--;
                     loseLife();
                 }
             }
+            
+            // UPGRADE: Update and draw particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const particle = particles[i];
+                particle.update();
+                particle.draw();
+                
+                if (particle.life <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+            
             // Flash overlay effect
             if (flashOpacity > 0) {
                 ctx.save();
@@ -569,6 +885,7 @@
                 ctx.restore();
                 flashOpacity *= 0.85;
             }
+            
             animationId = requestAnimationFrame(update);
         }
 
@@ -580,19 +897,15 @@
             }
             playerName = nameInput;
             document.getElementById('hud-name').innerText = playerName;
-            // Hide the start screen and prepare the HUD
             document.getElementById('start-screen').classList.add('hidden');
             resetVariables();
-            // Resume the audio context and start background music when the player starts the game.
-            // Modern browsers require a user gesture before playing audio, which this function satisfies.
+            
             audioCtx.resume().catch(() => {});
-            // Reset and play the background music from the beginning at moderate volume
             if (bgMusic) {
                 bgMusic.currentTime = 0;
                 bgMusic.volume = 0.4;
                 bgMusic.play().catch(() => {});
             }
-            // Start the countdown instead of immediately starting the game
             startCountdown();
         }
 
@@ -600,31 +913,34 @@
             score = 0;
             lives = 3;
             bags = [];
-            // Start with a slow drop speed and long spawn interval; difficulty increases over time
+            particles = [];
             gameSpeed = 2;
             spawnRate = 120;
             frameCount = 0;
             bowl.x = canvas.width / 2;
-            // Reset bowl to empty state
+            bowl.targetX = canvas.width / 2;
             bowl.hasFood = false;
             document.getElementById('hud-score').innerText = score;
             updateLivesDisplay();
+            
+            // Hide difficulty indicator initially
+            document.getElementById('difficulty-indicator').classList.remove('show');
         }
 
         function gameOver() {
             gameRunning = false;
             cancelAnimationFrame(animationId);
-            // Save high score
+            
             if (score > highScore) {
                 highScore = score;
                 localStorage.setItem('keosHighScore', highScore);
             }
+            
             document.getElementById('final-message').innerText = `${playerName} ơi, bạn đạt ${score} điểm!`;
             document.getElementById('high-score-display').innerText = highScore;
             document.getElementById('hud').style.display = 'none';
             document.getElementById('game-over-screen').classList.remove('hidden');
-
-            // Stop background music and rewind to the beginning when the game ends
+            
             if (bgMusic) {
                 bgMusic.pause();
                 bgMusic.currentTime = 0;
@@ -633,16 +949,12 @@
 
         function resetGame() {
             document.getElementById('game-over-screen').classList.add('hidden');
-            // Stop background music before restarting
             if (bgMusic) {
                 bgMusic.pause();
                 bgMusic.currentTime = 0;
             }
-            // Reset variables and restart the countdown for a new game
             resetVariables();
-            // Resume audio context in case it was suspended
             audioCtx.resume().catch(() => {});
-            // Play background music again
             if (bgMusic) {
                 bgMusic.currentTime = 0;
                 bgMusic.volume = 0.4;
@@ -650,6 +962,18 @@
             }
             startCountdown();
         }
+        
+        // UPGRADE: Handle window resize during gameplay
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            // Recalculate bowl position on resize
+            bowl.targetX = Math.min(Math.max(bowl.targetX, bowl.width/2), canvas.width - bowl.width/2);
+        });
+        
+        // UPGRADE: Prevent context menu on long press (mobile)
+        canvas.addEventListener('contextmenu', e => {
+            e.preventDefault();
+        });
     </script>
 </body>
 </html>
