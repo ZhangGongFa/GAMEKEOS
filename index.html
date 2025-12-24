@@ -309,7 +309,14 @@
                 const drawX = this.x - this.width / 2;
                 const drawY = this.y - this.height;
                 if (img.complete && img.naturalWidth !== 0) {
+                    // Draw with high quality smoothing to keep the image crisp
+                    ctx.save();
+                    ctx.imageSmoothingEnabled = true;
+                    if ('imageSmoothingQuality' in ctx) {
+                        ctx.imageSmoothingQuality = 'high';
+                    }
                     ctx.drawImage(img, drawX, drawY, this.width, this.height);
+                    ctx.restore();
                 }
             },
             update() {
@@ -381,7 +388,8 @@
                 // Speed increases with current game speed and a small random factor
                 this.speed = (Math.random() * 0.5 + 0.8) * gameSpeed;
                 // Rotation for lively falling animation
-                this.rotation = (Math.random() - 0.5) * 0.05;
+                // Reduce rotation amplitude for smoother 2D appearance
+                this.rotation = (Math.random() - 0.5) * 0.03;
                 this.angle = 0;
                 // Determine type: normal, double score, or extra life
                 const rand = Math.random();
@@ -395,10 +403,11 @@
             }
             draw() {
                 ctx.save();
-                // Add drop shadow below each falling bag
-                ctx.shadowColor = 'rgba(0,0,0,0.3)';
-                ctx.shadowBlur = 10;
-                ctx.shadowOffsetY = 4;
+                // Ensure images are drawn crisply. Enable high quality smoothing.
+                ctx.imageSmoothingEnabled = true;
+                if ('imageSmoothingQuality' in ctx) {
+                    ctx.imageSmoothingQuality = 'high';
+                }
                 ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
                 ctx.rotate(this.angle);
                 // Draw the bag image if loaded, otherwise draw a fallback rectangle
