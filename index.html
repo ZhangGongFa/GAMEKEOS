@@ -328,6 +328,11 @@
         <img id="img-plus-hairball" src="keosplus_hairball.png" alt="Keos+ Hairball Control">
         <img id="img-plus-digestive" src="keosplus_digestive.png" alt="Keos+ Digestive Care">
         <img id="img-plus-urinary" src="keosplus_urinary.png" alt="Keos+ Urinary Care">
+        <!-- Negative food items that subtract points -->
+        <img id="img-negative-comtam" src="negative_comtam.png" alt="Cơm tấm">
+        <img id="img-negative-banhmi" src="negative_banhmi.png" alt="Bánh mì">
+        <img id="img-negative-pho" src="negative_pho.png" alt="Phở">
+        <img id="img-negative-bunbo" src="negative_bunbo.png" alt="Bún bò">
         <!-- Removed separate logo overlay because the provided bowl images already include branding -->
     </div>
     <div id="game-container">
@@ -445,6 +450,13 @@
             scoreboard = [];
         }
 
+        // Effect timers for special items. freezeUntil and magnetUntil
+        // hold timestamps in milliseconds indicating when the freeze
+        // (slow motion) or magnet (attracts bags to bowl) effects
+        // expire. A value of 0 means the effect is inactive.
+        let freezeUntil = 0;
+        let magnetUntil = 0;
+
         // Pre-render the scoreboard list on page load so that returning
         // players can see their past achievements as soon as the game is
         // finished. The list is not visible until the game over screen is
@@ -482,6 +494,17 @@
         
         const bowlEmptyImage = document.getElementById('img-bowl-empty');
         const bowlFullImage = document.getElementById('img-bowl-full');
+
+        // Array of negative item images (Vietnamese dishes). These images
+        // represent foods that should not be caught and will subtract
+        // points when collected. Each image is preloaded in the hidden
+        // asset section at the top of the document.
+        const negativeImages = [
+            document.getElementById('img-negative-comtam'),
+            document.getElementById('img-negative-banhmi'),
+            document.getElementById('img-negative-pho'),
+            document.getElementById('img-negative-bunbo')
+        ];
 
         // UPGRADE: Enhanced bowl object with better scaling and effects
         const bowl = {
@@ -668,95 +691,156 @@
         // UPGRADE: Enhanced Bag class with better visuals
         class Bag {
             constructor() {
-                this.img = bagImageElements[Math.floor(Math.random() * bagImageElements.length)];
-                
-                // UPGRADE: Better size scaling
-                // Use a single base size for all devices so that bags look
-                // identical on desktop and mobile. 0.07 yields reasonable sizes.
+                // Decide the type of this bag and choose an appropriate image.
+                // Probabilities: freeze 5%, magnet 5%, negative 10%, life 6%,
+                // double 12%, normal 62%. Negative items use custom images of
+                // Vietnamese dishes. Others reuse existing KEOS bag images.
+                const rand = Math.random();
+                if (rand < 0.05) {
+                    this.type = 'freeze';
+                    this.img = bagImageElements[Math.floor(Math.random() * bagImageElements.length)];
+                } else if (rand < 0.10) {
+                    this.type = 'magnet';
+                    this.img = bagImageElements[Math.floor(Math.random() * bagImageElements.length)];
+                } else if (rand < 0.20) {
+                    this.type = 'negative';
+                    this.img = negativeImages[Math.floor(Math.random() * negativeImages.length)];
+                } else if (rand < 0.26) {
+                    this.type = 'life';
+                    this.img = bagImageElements[Math.floor(Math.random() * bagImageElements.length)];
+                } else if (rand < 0.38) {
+                    this.type = 'double';
+                    this.img = bagImageElements[Math.floor(Math.random() * bagImageElements.length)];
+                } else {
+                    this.type = 'normal';
+                    this.img = bagImageElements[Math.floor(Math.random() * bagImageElements.length)];
+                }
+
+                // Determine size based on canvas width. The base size is a fixed
+                // fraction of the canvas width. Negative items are sized
+                // identically to other bags. Minimum pixel width is enforced.
                 const baseSize = 0.07;
                 this.width = Math.max(55, canvas.width * baseSize);
                 const ratio = (this.img.naturalHeight / this.img.naturalWidth) || 1.5;
                 this.height = this.width * ratio;
-                
+
+                // Initial position: random horizontal location above the canvas.
                 this.x = Math.random() * (canvas.width - this.width);
                 this.y = -this.height;
-                
-                // Unified speed scaling across devices. Use a single base speed so
-                // that objects fall at the same rate regardless of device.
+
+                // Base fall speed. The actual speed will be multiplied by
+                // `gameSpeed` later. Speed variation adds randomness.
                 const baseSpeed = 0.75;
                 this.speed = (Math.random() * 0.5 + baseSpeed) * gameSpeed;
-                
+
                 this.rotation = (Math.random() - 0.5) * 0.03;
                 this.angle = 0;
-                
-                // UPGRADE: Better probability distribution
-                const rand = Math.random();
-                if (rand < 0.06) {
-                    this.type = 'life';
-                } else if (rand < 0.18) {
-                    this.type = 'double';
-                } else {
-                    this.type = 'normal';
-                }
-                
-                // UPGRADE: Add glow effect
+
+                // Intensity used for glow animations (not currently used for
+                // new item types but can be extended for special effects).
                 this.glowIntensity = 0;
             }
-            
+
             draw() {
                 ctx.save();
                 ctx.imageSmoothingEnabled = true;
                 if ('imageSmoothingQuality' in ctx) {
                     ctx.imageSmoothingQuality = 'high';
                 }
-                
+
                 ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
                 ctx.rotate(this.angle);
-                
-                // UPGRADE: Add glow effect for special bags
+
+                // Add glow effect for special bags. Use different colours depending
+                // on the bag type: green for life, yellow for double, blue for freeze,
+                // purple for magnet, red for negative. Normal bags have no glow.
                 if (this.type !== 'normal') {
-                    ctx.shadowColor = this.type === 'life' ? '#00ff00' : '#ffff00';
+                    switch (this.type) {
+                        case 'life':
+                            ctx.shadowColor = '#00ff00';
+                            break;
+                        case 'double':
+                            ctx.shadowColor = '#ffff00';
+                            break;
+                        case 'freeze':
+                            ctx.shadowColor = '#29b6f6';
+                            break;
+                        case 'magnet':
+                            ctx.shadowColor = '#ab47bc';
+                            break;
+                        case 'negative':
+                            ctx.shadowColor = '#e53935';
+                            break;
+                        default:
+                            ctx.shadowColor = '#000';
+                    }
                     ctx.shadowBlur = 15;
                 }
-                
+
                 if (this.img.complete && this.img.naturalWidth !== 0) {
                     ctx.drawImage(this.img, -this.width / 2, -this.height / 2, this.width, this.height);
                 } else {
                     ctx.fillStyle = '#ffd54f';
                     ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
                 }
-                
-                // Enhanced overlay icons
+
+                // Overlay icons for special items. Draw an icon or text at the centre
+                // of the bag to indicate its effect.
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.shadowColor = '#000';
+                ctx.shadowBlur = 3;
                 if (this.type === 'double') {
                     ctx.fillStyle = 'rgba(255, 215, 0, 0.95)';
                     ctx.font = 'bold ' + Math.floor(this.width/3) + 'px sans-serif';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.shadowColor = '#000';
-                    ctx.shadowBlur = 3;
                     ctx.fillText('×2', 0, 0);
                 } else if (this.type === 'life') {
                     ctx.fillStyle = 'rgba(0, 200, 83, 0.95)';
                     ctx.font = 'bold ' + Math.floor(this.width/3.5) + 'px sans-serif';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.shadowColor = '#000';
-                    ctx.shadowBlur = 3;
                     ctx.fillText('❤️', 0, 0);
+                } else if (this.type === 'freeze') {
+                    ctx.fillStyle = 'rgba(41, 182, 246, 0.95)';
+                    ctx.font = 'bold ' + Math.floor(this.width/3.2) + 'px sans-serif';
+                    ctx.fillText('❄', 0, 0);
+                } else if (this.type === 'magnet') {
+                    ctx.fillStyle = 'rgba(171, 71, 188, 0.95)';
+                    ctx.font = 'bold ' + Math.floor(this.width/3.2) + 'px sans-serif';
+                    ctx.fillText('🧲', 0, 0);
+                } else if (this.type === 'negative') {
+                    ctx.fillStyle = 'rgba(229, 57, 53, 0.95)';
+                    ctx.font = 'bold ' + Math.floor(this.width/3) + 'px sans-serif';
+                    ctx.fillText('-1', 0, 0);
                 }
                 ctx.restore();
             }
-            
+
             update() {
-                // Move downward
-                this.y += this.speed;
+                // Determine whether freeze or magnet effects are active
+                const now = Date.now();
+                const freezeActive = now < freezeUntil;
+                const magnetActive = now < magnetUntil;
+                const speedModifier = freezeActive ? 0.5 : 1;
+
+                // Move downward. When freeze is active, the fall speed is reduced.
+                this.y += this.speed * speedModifier;
                 this.angle += this.rotation;
-                // Add a gentle horizontal drift to make the fall feel more
-                // dynamic. The drift amplitude is scaled by the current
-                // falling speed so that faster objects wobble more. Use
-                // sine of y to oscillate left/right.
-                const drift = Math.sin(this.y * 0.03) * this.speed * 0.2;
-                this.x += drift;
+
+                // Horizontal movement: if magnet is active, attract towards the bowl
+                // centre; otherwise apply a gentle drift.
+                if (magnetActive) {
+                    // Compute horizontal difference between bag centre and bowl centre
+                    const centerX = this.x + this.width / 2;
+                    const targetX = bowl.x;
+                    const delta = targetX - centerX;
+                    // Apply a fraction of the difference to move the bag towards the bowl
+                    this.x += delta * 0.05;
+                } else {
+                    // Gentle horizontal drift when no magnet. The drift amplitude is
+                    // scaled by the current falling speed so that faster objects
+                    // wobble more. Use sine of y to oscillate left/right.
+                    const drift = Math.sin(this.y * 0.03) * this.speed * 0.2;
+                    this.x += drift;
+                }
                 // Clamp horizontal position to the canvas bounds
                 if (this.x < 0) this.x = 0;
                 if (this.x > canvas.width - this.width) this.x = canvas.width - this.width;
@@ -900,22 +984,33 @@
         // parameter is used to prefill the share text. Note that Facebook
         // may ignore custom text depending on platform and privacy settings.
         function shareScore() {
-            // Compose a friendly message for sharing. Use the official
-            // game link so that friends can click through to play. The
-            // quote parameter will prefill this message in the Facebook
-            // share dialog. Players no longer need to paste the text
-            // manually; however, we still attempt to copy it to the
-            // clipboard silently for convenience if supported.
+            // Compose a friendly message for sharing and the official game link.
             const message = `${playerName} vừa đạt ${score} điểm trong KEOS Catch!\nHãy thử thách mình tại game KEOS Catch để nhận quà hấp dẫn!`;
             const link = 'https://gamekeos.vercel.app/';
-            // Attempt to copy to clipboard without showing an alert. This
-            // provides a fallback if the quote parameter is ignored by
-            // Facebook. Failure to copy is silently ignored.
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(message).catch(() => {});
+            // If the browser supports the Web Share API, use it to open the native
+            // share sheet. This allows the user to share via Messenger, Zalo,
+            // email or other apps with the message prefilled.
+            if (navigator.share) {
+                navigator.share({
+                    title: 'KEOS Catch',
+                    text: message.replace(/\n/g, '\n'),
+                    url: link
+                }).catch(() => {
+                    // If share fails, fall back to copying and opening a Facebook dialog
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(message).catch(() => {});
+                    }
+                    const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}&quote=${encodeURIComponent(message)}`;
+                    window.open(fbUrl, '_blank');
+                });
+            } else {
+                // Fallback: copy message to clipboard and open Facebook share dialog
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(message).catch(() => {});
+                }
+                const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}&quote=${encodeURIComponent(message)}`;
+                window.open(fbUrl, '_blank');
             }
-            const shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}&quote=${encodeURIComponent(message)}`;
-            window.open(shareUrl, '_blank');
         }
 
         function loseLife() {
@@ -983,13 +1078,17 @@
                     let points = 1;
                     let toneFreq = 520;
                     let particleColor = '#FFD700';
-                    
+
+                    // Handle different bag types. Freeze and magnet provide
+                    // power-ups without extra points; negative items subtract points.
                     if (bag.type === 'double') {
                         points = 2;
                         toneFreq = 880;
                         particleColor = '#FFFF00';
                         playTone(toneFreq, 0.15, 0.4);
                     } else if (bag.type === 'life') {
+                        // Grant an extra life up to maxLives; no score added
+                        points = 0;
                         if (lives < maxLives) {
                             lives++;
                             updateLivesDisplay();
@@ -997,26 +1096,49 @@
                         toneFreq = 660;
                         particleColor = '#00ff00';
                         playTone(toneFreq, 0.15, 0.4);
+                    } else if (bag.type === 'freeze') {
+                        // Activate freeze effect for 5 seconds
+                        points = 1;
+                        freezeUntil = Date.now() + 5000;
+                        toneFreq = 540;
+                        particleColor = '#29b6f6';
+                        playTone(toneFreq, 0.15, 0.4);
+                    } else if (bag.type === 'magnet') {
+                        // Activate magnet effect for 5 seconds
+                        points = 1;
+                        magnetUntil = Date.now() + 5000;
+                        toneFreq = 760;
+                        particleColor = '#ab47bc';
+                        playTone(toneFreq, 0.15, 0.4);
+                    } else if (bag.type === 'negative') {
+                        // Subtract a point but ensure score does not go below zero
+                        points = -1;
+                        toneFreq = 240;
+                        particleColor = '#e53935';
+                        playTone(toneFreq, 0.12, 0.4);
                     } else {
+                        // Normal bag
                         playTone(toneFreq, 0.12, 0.35);
                     }
-                    
+
                     score += points;
+                    if (score < 0) score = 0;
                     document.getElementById('hud-score').innerText = score;
-                    
-                    // UPGRADE: Enhanced visual feedback
+
+                    // Enhanced visual feedback
                     flashOpacity = 0.8;
                     shakeTime = 10;
-                    
+
                     // Add particle explosion
                     for (let j = 0; j < 15; j++) {
                         particles.push(new Particle(
-                            bag.x + bag.width/2, 
-                            bag.y + bag.height/2, 
+                            bag.x + bag.width/2,
+                            bag.y + bag.height/2,
                             particleColor
                         ));
                     }
-                    
+
+                    // Remove caught bag and continue with loop
                     bags.splice(i, 1);
                     i--;
                     bowl.hasFood = true;
