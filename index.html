@@ -502,14 +502,16 @@
                 
                 const ratio = (img.naturalHeight / img.naturalWidth) || 0.45;
                 
-                // Dynamic bowl sizing: start larger and gradually shrink as
-                // the player's score increases. This adds a visual and
-                // gameplay challenge over time. The bowl shrinks up to
-                // 35% when the score reaches 100 or more. We also remove
-                // device-specific sizing to unify the experience.
-                const baseWidth = 0.18; // initial fraction of canvas width
-                const shrinkFactor = 1 - Math.min(score / 100, 0.35);
-                const targetWidth = Math.min(240, canvas.width * baseWidth * shrinkFactor);
+                // Dynamic bowl sizing: start large and shrink noticeably as
+                // the score climbs. We interpolate between a maximum fraction
+                // of the canvas width and a minimum fraction. When the score
+                // reaches 100, the bowl will be at its smallest size. The
+                // fractions can be tuned to adjust the challenge.
+                const maxFraction = 0.20; // fraction of canvas width at score 0
+                const minFraction = 0.10; // fraction of canvas width at high score
+                const progress = Math.min(score / 100, 1);
+                const fraction = maxFraction - progress * (maxFraction - minFraction);
+                const targetWidth = Math.min(240, canvas.width * fraction);
                 const targetHeight = targetWidth * ratio;
                 this.width = targetWidth;
                 this.height = targetHeight;
@@ -796,14 +798,17 @@
             e.preventDefault();
             if (e.touches.length > 0) {
                 const touchX = e.touches[0].clientX;
-                // UPGRADE: Better touch responsiveness
+                // Calculate the change in X since the last touch event. This delta
+                // is used directly to adjust the bowl's target position. We do
+                // not call moveBowl() here because moveBowl() converts global
+                // coordinates to canvas-relative coordinates, which would
+                // incorrectly subtract the canvas's offset when adding a delta.
                 const deltaX = touchX - lastTouchX;
-                // Use a unified sensitivity across devices so that touch control
-                // feels the same on mobile and desktop. 1 corresponds to a
-                // direct mapping from finger movement to bowl movement.
-                const sensitivity = 1;
-                moveBowl(bowl.targetX + deltaX * sensitivity);
                 lastTouchX = touchX;
+                // Adjust the bowl target by the raw delta. The bowl's targetX is
+                // in canvas coordinates, and the CSS width of the canvas is the
+                // same as the drawn width, so the delta applies directly.
+                bowl.setTarget(bowl.targetX + deltaX);
             }
         }, { passive: false });
         
@@ -881,12 +886,24 @@
         // parameter is used to prefill the share text. Note that Facebook
         // may ignore custom text depending on platform and privacy settings.
         function shareScore() {
-            // Share the public game URL along with a custom message. Use the
-            // official KEOS Catch website so friends can join and compete.
+            // Compose a friendly message for sharing. Copy it to the clipboard
+            // so the player can paste it into their post if the share dialog
+            // does not prefill text. Use the official game link so that
+            // friends can click through to play.
+            const message = `${playerName} vừa đạt ${score} điểm trong KEOS Catch!\nHãy thử thách mình tại game KEOS Catch để nhận quà hấp dẫn!`;
             const link = 'https://gamekeos.vercel.app/';
-            const quote = `${playerName} vừa đạt ${score} điểm trong KEOS Catch!\nHãy thử thách bạn và nhận quà tặng cùng KEOS!`;
-            const shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}&quote=${encodeURIComponent(quote)}`;
+            try {
+                // Copy message to clipboard (may silently fail if permissions
+                // are not granted). This helps the user paste it in their
+                // Facebook post if the quote parameter is ignored.
+                navigator.clipboard && navigator.clipboard.writeText(message);
+            } catch (e) {
+                console.log('Clipboard copy failed:', e);
+            }
+            const shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}&quote=${encodeURIComponent(message)}`;
             window.open(shareUrl, '_blank');
+            // Alert the player that the message has been copied to the clipboard.
+            alert('Nội dung kết quả đã được sao chép! Bạn có thể dán vào bài đăng trên Facebook.');
         }
 
         function loseLife() {
