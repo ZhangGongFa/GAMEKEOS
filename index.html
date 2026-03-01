@@ -48,7 +48,13 @@
 
         /* UPGRADE: Enhanced canvas with better shadows and hover effects */
         canvas {
-            background: rgba(255, 255, 255, 0.9);
+            /* Use a soft pastel background with a very subtle diagonal pattern
+               instead of a pronounced gradient. This is easier on the eyes
+               and avoids strong colour transitions during gameplay. */
+            background: #fff8ec;
+            background-image: repeating-linear-gradient(45deg,
+                rgba(255, 255, 255, 0.05) 0 6px,
+                rgba(255, 255, 255, 0) 6px 12px);
             border-radius: 24px;
             border: 4px solid transparent;
             border-image: linear-gradient(60deg, #ffb74d, #ff9800, #fb8c00, #e65100) 1;
@@ -347,16 +353,14 @@
         </div>
         <!-- Game Over Screen -->
         <div id="game-over-screen" class="ui-screen hidden">
-            <h1>Hết giờ!</h1>
+            <!-- Replace game over title to something neutral since the game does not count down by time -->
+            <h1>Kết thúc ván chơi!</h1>
             <h2 id="final-message"></h2>
             <p style="font-size: 1.3rem; margin-bottom: 20px; font-weight: bold;">Điểm cao nhất: <span id="high-score-display">0</span></p>
-            <!-- NEW: Scoreboard display -->
-            <div id="scoreboard" style="width: 100%; max-width: 360px; margin: 0 auto; text-align: left;">
-                <h3 style="margin-bottom: 8px; font-size: 1.2rem; color: #e65100;">Bảng xếp hạng</h3>
-                <ol id="score-list" style="list-style: decimal inside; padding-left: 0; margin: 0 0 16px 0; font-weight: 700; color: #555;"></ol>
-            </div>
+            <!-- Scoreboard removed -->
             <button onclick="resetGame()">Chơi lại</button>
-            <button style="margin-top: 10px;" onclick="shareScore()">Chia sẻ trên Facebook</button>
+            <!-- Rename the share button to a generic label since we support multiple apps (Zalo, Messenger, Facebook) -->
+            <button style="margin-top: 10px;" onclick="shareScore()">Chia sẻ ngay</button>
         </div>
         <!-- Game Canvas -->
         <canvas id="gameCanvas"></canvas>
@@ -437,18 +441,7 @@
         let flashOpacity = 0;
         let shakeTime = 0;
 
-        // Scoreboard: track top scores across sessions. Each entry includes
-        // a player name, their score and a timestamp. Data is stored in
-        // localStorage under the key 'keosScoreboard'.
-        let scoreboard = [];
-        try {
-            const storedBoard = localStorage.getItem('keosScoreboard');
-            if (storedBoard) {
-                scoreboard = JSON.parse(storedBoard);
-            }
-        } catch (e) {
-            scoreboard = [];
-        }
+        // Scoreboard feature removed. Only the highest score is tracked via localStorage.
 
         // Effect timers for special items. freezeUntil and magnetUntil
         // hold timestamps in milliseconds indicating when the freeze
@@ -457,22 +450,7 @@
         let freezeUntil = 0;
         let magnetUntil = 0;
 
-        // Pre-render the scoreboard list on page load so that returning
-        // players can see their past achievements as soon as the game is
-        // finished. The list is not visible until the game over screen is
-        // displayed.
-        window.addEventListener('load', () => {
-            const list = document.getElementById('score-list');
-            if (list && scoreboard.length) {
-                list.innerHTML = '';
-                scoreboard.forEach((entry) => {
-                    const li = document.createElement('li');
-                    // Use ordered list numbering automatically
-                    li.textContent = `${entry.name}: ${entry.score}`;
-                    list.appendChild(li);
-                });
-            }
-        });
+        // Scoreboard pre-render removed: there is no scoreboard list to initialise.
         
         // UPGRADE: Additional visual effects
         let particles = [];
@@ -827,7 +805,7 @@
 
                 // Horizontal movement: if magnet is active, attract towards the bowl
                 // centre; otherwise apply a gentle drift.
-                if (magnetActive) {
+                if (magnetActive && this.type !== 'negative') {
                     // Compute horizontal difference between bag centre and bowl centre
                     const centerX = this.x + this.width / 2;
                     const targetX = bowl.x;
@@ -944,41 +922,7 @@
             document.getElementById('lives-container').innerText = hearts;
         }
 
-        // ============================================================
-        // Scoreboard management
-        //
-        // After each game, the current player's score is recorded along with
-        // their name. The scoreboard is sorted in descending order and
-        // persisted to localStorage. Only the top 10 entries are retained.
-        function updateScoreboard() {
-            // Append current score
-            scoreboard.push({
-                name: playerName,
-                score: score,
-                timestamp: new Date().toISOString()
-            });
-            // Sort by score descending
-            scoreboard.sort((a, b) => b.score - a.score);
-            // Keep only top 10 scores
-            scoreboard = scoreboard.slice(0, 10);
-            // Persist to localStorage
-            try {
-                localStorage.setItem('keosScoreboard', JSON.stringify(scoreboard));
-            } catch (e) {
-                console.log('Unable to store scoreboard:', e);
-            }
-            // Update scoreboard list in UI
-            const list = document.getElementById('score-list');
-            if (!list) return;
-            list.innerHTML = '';
-            scoreboard.forEach((entry) => {
-                const li = document.createElement('li');
-                // The ordered list will automatically show numbers, so we
-                // only display the player's name and score here.
-                li.textContent = `${entry.name}: ${entry.score}`;
-                list.appendChild(li);
-            });
-        }
+        // Scoreboard management removed: high scores are still tracked, but there is no scoreboard list.
 
         // Open Facebook share dialog with the player's result. The quote
         // parameter is used to prefill the share text. Note that Facebook
@@ -1146,9 +1090,14 @@
                 }
                 
                 if (bag.y > canvas.height + bag.height) {
+                    // Remove the bag that has fallen off-screen. Only deduct a life
+                    // for positive or special bags. Negative bags do not cost a life
+                    // when missed.
                     bags.splice(i, 1);
                     i--;
-                    loseLife();
+                    if (bag.type !== 'negative') {
+                        loseLife();
+                    }
                 }
             }
             
@@ -1222,8 +1171,7 @@
                 localStorage.setItem('keosHighScore', highScore);
             }
 
-            // Update scoreboard with the latest result
-            updateScoreboard();
+            // Scoreboard removed: no leaderboard update necessary
 
             document.getElementById('final-message').innerText = `${playerName} ơi, bạn đạt ${score} điểm!`;
             document.getElementById('high-score-display').innerText = highScore;
