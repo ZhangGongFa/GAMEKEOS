@@ -502,16 +502,30 @@
                 
                 const ratio = (img.naturalHeight / img.naturalWidth) || 0.45;
                 
-                // Dynamic bowl sizing: start large and shrink noticeably as
-                // the score climbs. We interpolate between a maximum fraction
-                // of the canvas width and a minimum fraction. When the score
-                // reaches 100, the bowl will be at its smallest size. The
-                // fractions can be tuned to adjust the challenge.
-                const maxFraction = 0.20; // fraction of canvas width at score 0
-                const minFraction = 0.10; // fraction of canvas width at high score
-                const progress = Math.min(score / 100, 1);
-                const fraction = maxFraction - progress * (maxFraction - minFraction);
-                const targetWidth = Math.min(240, canvas.width * fraction);
+                // Dynamic bowl sizing: start with a large bowl and shrink it
+                // noticeably at specific score thresholds. This makes the
+                // change more pronounced for lower scores (most players do
+                // not exceed 100 points) and stops shrinking beyond 50 points.
+                // Fractions correspond to the portion of the canvas width
+                // occupied by the bowl. Adjust these arrays to tune the
+                // difficulty. The arrays are ordered from highest score
+                // threshold to lowest. When the player's score reaches a
+                // threshold, the corresponding fraction is selected.
+                const thresholds = [50, 40, 30, 20, 10, 0];
+                const fractions  = [0.14, 0.16, 0.19, 0.22, 0.25, 0.28];
+                let fraction = fractions[fractions.length - 1];
+                for (let i = 0; i < thresholds.length; i++) {
+                    if (score >= thresholds[i]) {
+                        fraction = fractions[i];
+                        break;
+                    }
+                }
+                // Calculate target width based on fraction and clamp to
+                // reasonable bounds so the bowl never becomes too small or
+                // excessively large. Minimum width of 80px prevents the bowl
+                // from becoming too tiny on small screens, while maximum
+                // width of 260px keeps it from dominating the canvas.
+                const targetWidth = Math.min(260, Math.max(80, canvas.width * fraction));
                 const targetHeight = targetWidth * ratio;
                 this.width = targetWidth;
                 this.height = targetHeight;
@@ -886,24 +900,22 @@
         // parameter is used to prefill the share text. Note that Facebook
         // may ignore custom text depending on platform and privacy settings.
         function shareScore() {
-            // Compose a friendly message for sharing. Copy it to the clipboard
-            // so the player can paste it into their post if the share dialog
-            // does not prefill text. Use the official game link so that
-            // friends can click through to play.
+            // Compose a friendly message for sharing. Use the official
+            // game link so that friends can click through to play. The
+            // quote parameter will prefill this message in the Facebook
+            // share dialog. Players no longer need to paste the text
+            // manually; however, we still attempt to copy it to the
+            // clipboard silently for convenience if supported.
             const message = `${playerName} vừa đạt ${score} điểm trong KEOS Catch!\nHãy thử thách mình tại game KEOS Catch để nhận quà hấp dẫn!`;
             const link = 'https://gamekeos.vercel.app/';
-            try {
-                // Copy message to clipboard (may silently fail if permissions
-                // are not granted). This helps the user paste it in their
-                // Facebook post if the quote parameter is ignored.
-                navigator.clipboard && navigator.clipboard.writeText(message);
-            } catch (e) {
-                console.log('Clipboard copy failed:', e);
+            // Attempt to copy to clipboard without showing an alert. This
+            // provides a fallback if the quote parameter is ignored by
+            // Facebook. Failure to copy is silently ignored.
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(message).catch(() => {});
             }
             const shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}&quote=${encodeURIComponent(message)}`;
             window.open(shareUrl, '_blank');
-            // Alert the player that the message has been copied to the clipboard.
-            alert('Nội dung kết quả đã được sao chép! Bạn có thể dán vào bài đăng trên Facebook.');
         }
 
         function loseLife() {
