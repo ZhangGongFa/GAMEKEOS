@@ -315,6 +315,186 @@
         .difficulty-indicator.show {
             opacity: 1;
         }
+
+        .choice-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 18px;
+        }
+
+        .choice-card {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .choice-card input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .choice-card span {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 120px;
+            padding: 12px 18px;
+            border-radius: 18px;
+            border: 2px solid #ffd1a1;
+            background: rgba(255,255,255,0.92);
+            color: #7a4a00;
+            font-weight: 800;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: all 0.25s ease;
+        }
+
+        .choice-card input:checked + span {
+            border-color: #e65100;
+            background: linear-gradient(45deg, #fff3e0, #ffe0b2);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(230, 81, 0, 0.18);
+        }
+
+        .form-helper {
+            max-width: 360px;
+            margin: 0 0 14px;
+            color: #6d6d6d;
+            font-size: 0.98rem;
+            line-height: 1.5;
+        }
+
+        #game-over-screen {
+            justify-content: flex-start;
+            overflow-y: auto;
+            padding-top: 36px;
+            padding-bottom: 32px;
+        }
+
+        #recommendation-panel {
+            width: min(100%, 460px);
+            margin: 2px auto 20px;
+            display: none;
+        }
+
+        .recommendation-card {
+            background: rgba(255,255,255,0.9);
+            border-radius: 24px;
+            padding: 20px;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.12), inset 0 2px 4px rgba(255,255,255,0.55);
+            text-align: left;
+        }
+
+        .recommendation-tag {
+            display: inline-block;
+            margin-bottom: 12px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: #fff3db;
+            color: #e65100;
+            font-size: 0.85rem;
+            font-weight: 900;
+        }
+
+        .recommendation-card h3 {
+            margin: 0 0 10px;
+            color: #e65100;
+            font-size: clamp(1.15rem, 4vw, 1.55rem);
+        }
+
+        .recommendation-count {
+            margin: 0 0 10px;
+            color: #6d4c41;
+            font-weight: 800;
+        }
+
+        .recommendation-copy {
+            margin: 0 0 16px;
+            color: #555;
+            line-height: 1.55;
+        }
+
+        .recommendation-empty {
+            margin: 0 auto 20px;
+            max-width: 420px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .marketplace-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .marketplace-link {
+            flex: 1 1 140px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 18px;
+            border-radius: 18px;
+            color: white;
+            text-decoration: none;
+            font-weight: 900;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.14);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .marketplace-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 22px rgba(0,0,0,0.18);
+        }
+
+        .marketplace-link.shopee {
+            background: linear-gradient(45deg, #ee4d2d, #ff7f50);
+        }
+
+        .marketplace-link.tiktok {
+            background: linear-gradient(45deg, #151515, #393939);
+        }
+
+        .secondary-action {
+            /* Giữ khoảng cách với nút phía trên bằng cách đặt margin trong selector toàn cục. */
+            background: linear-gradient(45deg, #8d6e63, #a1887f);
+        }
+
+        /*
+         * Ensure the action buttons on the game‑over screen are consistently
+         * sized and centered on both desktop and mobile. Previously these
+         * buttons could collapse or align awkwardly on wider viewports,
+         * causing the “Chơi lại” và “Đổi thông tin” controls to overlap or
+         * appear misaligned. By forcing them to stack vertically and
+         * providing a maximum width, the layout remains stable across
+         * screen sizes.
+         */
+        #game-over-screen button {
+            /* Đảm bảo nút chiếm toàn bộ chiều rộng và tách riêng hàng. */
+            display: block !important;
+            width: 100%;
+            max-width: 360px;
+            /* Sử dụng !important để ghi đè margin inline của từng nút nếu có. */
+            margin: 12px auto !important;
+            clear: both;
+        }
+
+        /* On small screens the buttons can be slightly narrower to fit
+           comfortably within the viewport */
+        @media (max-width: 768px) {
+            #game-over-screen button {
+                max-width: 300px;
+            }
+        }
+
+        /* Wrapper to vertically align action buttons in the game‑over screen.
+           Without this, buttons might overlap on certain browsers or viewports. */
+        .game-over-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -347,20 +527,32 @@
             <h1>KEOS CATCH</h1>
             <h2>Hứng Hạt Ngon – Trọn Dinh Dưỡng</h2>
             <input type="text" id="player-name" placeholder="Nhập tên của bạn..." maxlength="12">
+            <p class="form-helper">Nhà bạn đang đồng hành cùng bé nào?</p>
+            <div class="choice-group" role="radiogroup" aria-label="Chọn bạn đồng hành">
+                <label class="choice-card">
+                    <input type="radio" name="pet-companion" value="dog" checked>
+                    <span>🐶 Bé cún</span>
+                </label>
+                <label class="choice-card">
+                    <input type="radio" name="pet-companion" value="cat">
+                    <span>🐱 Bé mèo</span>
+                </label>
+            </div>
             <button onclick="startGame()">Bắt đầu chơi</button>
-            <!-- UPGRADE: Show device type for debugging -->
             <p style="margin-top: 20px; font-size: 0.9rem; color: #666;" id="device-info"></p>
         </div>
         <!-- Game Over Screen -->
         <div id="game-over-screen" class="ui-screen hidden">
-            <!-- Replace game over title to something neutral since the game does not count down by time -->
             <h1>Kết thúc ván chơi!</h1>
             <h2 id="final-message"></h2>
             <p style="font-size: 1.3rem; margin-bottom: 20px; font-weight: bold;">Điểm cao nhất: <span id="high-score-display">0</span></p>
-            <!-- Scoreboard removed -->
-            <button onclick="resetGame()">Chơi lại</button>
-            <!-- Rename the share button to a generic label since we support multiple apps (Zalo, Messenger, Facebook) -->
-            <button style="margin-top: 10px;" onclick="shareScore()">Chia sẻ ngay</button>
+            <div id="recommendation-panel"></div>
+            <!-- Nhóm các nút hành động vào một wrapper để layout ổn định -->
+            <div class="game-over-actions">
+                <button onclick="resetGame()">Chơi lại</button>
+                <button onclick="shareScore()">Chia sẻ ngay</button>
+                <button class="secondary-action" onclick="backToStart()">Đổi thông tin</button>
+            </div>
         </div>
         <!-- Game Canvas -->
         <canvas id="gameCanvas"></canvas>
@@ -385,98 +577,138 @@
         <audio id="bg-music" src="bg_music.wav" loop></audio>
     </div>
 
+    
     <script>
-        /*
-         * UPGRADE: Enhanced game configuration with device detection and balanced difficulty
-         */
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        
-        // Ensure canvas fills the viewport with a fixed 9:16 aspect ratio
-        // so the game looks the same on desktop and mobile. The canvas is
-        // letterboxed when necessary, maintaining the playable area and
-        // centering it within the available space.
+        const countdownOverlay = document.getElementById('countdown-overlay');
+        const recommendationPanel = document.getElementById('recommendation-panel');
+
         function resizeCanvas() {
             const viewportWidth = window.innerWidth;
             const viewportHeight = window.innerHeight;
-            const targetRatio = 9 / 16; // width:height = 9:16 (portrait)
+            const targetRatio = 9 / 16;
             let width = viewportWidth;
             let height = viewportHeight;
             if (viewportWidth / viewportHeight > targetRatio) {
-                // viewport is wider than desired ratio – limit width
                 width = viewportHeight * targetRatio;
             } else {
-                // viewport is taller than desired ratio – limit height
                 height = viewportWidth / targetRatio;
             }
-            // Update canvas element size via CSS to preserve aspect ratio visually
+            width = Math.round(width);
+            height = Math.round(height);
             canvas.style.width = width + 'px';
             canvas.style.height = height + 'px';
-            // Update actual drawing buffer size. Do not scale by devicePixelRatio
-            // because our game uses relative sizes already.
             canvas.width = width;
             canvas.height = height;
         }
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        // UPGRADE: Device detection and configuration
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
-        const devicePixelRatio = window.devicePixelRatio || 1;
-        
-        // Show device info
         document.getElementById('device-info').textContent = isMobile ? 'Đang chơi trên điện thoại' : 'Đang chơi trên máy tính';
 
-        let gameRunning = false;
-        let score = 0;
-        const maxLives = 3;
-        let lives = 3;
-        let playerName = 'Bạn';
-        let highScore = parseInt(localStorage.getItem('keosHighScore') || '0');
-        let bags = [];
-        let spawnRate = 120;
-        let frameCount = 0;
-        let gameSpeed = 2;
-        let animationId;
-        let flashOpacity = 0;
-        let shakeTime = 0;
-
-        // Scoreboard feature removed. Only the highest score is tracked via localStorage.
-
-        // Effect timers for special items. freezeUntil and magnetUntil
-        // hold timestamps in milliseconds indicating when the freeze
-        // (slow motion) or magnet (attracts bags to bowl) effects
-        // expire. A value of 0 means the effect is inactive.
-        let freezeUntil = 0;
-        let magnetUntil = 0;
-
-        // Scoreboard pre-render removed: there is no scoreboard list to initialise.
-        
-        // UPGRADE: Additional visual effects
-        let particles = [];
-        let backgroundOffset = 0;
-
-        // Preload images into JS variables
-        const bagImageElements = [
-            document.getElementById('img-puppy'),
-            document.getElementById('img-beef'),
-            document.getElementById('img-chicken'),
-            document.getElementById('img-tuna'),
-            document.getElementById('img-seafood'),
-            document.getElementById('img-plus-small'),
-            document.getElementById('img-plus-protein'),
-            document.getElementById('img-plus-hairball'),
-            document.getElementById('img-plus-digestive'),
-            document.getElementById('img-plus-urinary')
+        const PRODUCT_CATALOG = [
+            {
+                id: 'keos-puppy',
+                imageId: 'img-puppy',
+                petType: 'dog',
+                name: '[Keos] Hạt cho chó con, vị gà trứng sữa',
+                intro: 'Công thức dành cho chó con mới cai sữa, có thể làm mềm với nước khi tập ăn và còn phù hợp cho chó mẹ đang mang thai hoặc cho con bú.',
+                // Sử dụng URL sản phẩm cụ thể trên Shopee thay vì tìm kiếm chung
+                // Không có đường dẫn TikTok cụ thể cho phiên bản chó con nên giữ liên kết tìm kiếm làm mặc định
+                shopeeUrl: 'https://s.shopee.vn/15iWt2bur',
+                tiktokUrl: 'https://www.tiktok.com/search?q=Keos%20cho%20cho%20con%20ga%20trung%20sua'
+            },
+            {
+                id: 'keos-dog-beef',
+                imageId: 'img-beef',
+                petType: 'dog',
+                name: '[Keos] Hạt cho chó trưởng thành, vị bò rau củ',
+                intro: 'Dòng hạt cho cún trưởng thành với nền dinh dưỡng toàn diện, giúp duy trì thể trạng khỏe mạnh và sự năng động trong nhịp sinh hoạt mỗi ngày.',
+                // Đường dẫn sản phẩm thực tế cho hạt vị bò rau củ
+                shopeeUrl: 'https://s.shopee.vn/7fV9ehkPq8',
+                tiktokUrl: 'https://vt.tiktok.com/ZS9R2ekDQ3jfd-MCJmm/'
+            },
+            {
+                id: 'keos-dog-chicken',
+                imageId: 'img-chicken',
+                petType: 'dog',
+                name: '[Keos] Hạt cho chó trưởng thành, vị gà rau củ',
+                intro: 'Hương vị gà rau củ dễ ăn, phù hợp cho cún trưởng thành cần bữa hạt cân bằng, dễ làm quen và tiện dùng hằng ngày.',
+                shopeeUrl: 'https://s.shopee.vn/AACUdY3y5t',
+                tiktokUrl: 'https://vt.tiktok.com/ZS9R2ePM3o39E-OpJy6/'
+            },
+            {
+                id: 'keos-cat-tuna',
+                imageId: 'img-tuna',
+                petType: 'cat',
+                name: '[Keos] Hạt cho mèo mọi lứa tuổi, vị cá ngừ',
+                intro: 'Vị cá ngừ thơm dễ ăn giúp kích thích vị giác, đồng thời bổ sung taurine để hỗ trợ thị lực và tim mạch cho bé mèo.',
+                shopeeUrl: 'https://s.shopee.vn/30jK6VwTRi',
+                tiktokUrl: 'https://vt.tiktok.com/ZS9R2egqoxERK-zcOaf/'
+            },
+            {
+                id: 'keos-cat-seafood',
+                imageId: 'img-seafood',
+                petType: 'cat',
+                name: '[Keos] Hạt cho mèo mọi lứa tuổi, vị hải sản',
+                intro: 'Công thức vị hải sản giúp mèo ăn ngon miệng hơn, đồng thời cung cấp taurine cùng tỷ lệ đạm và khoáng chất cân đối.',
+                shopeeUrl: 'https://s.shopee.vn/6VJCGvjthQ',
+                tiktokUrl: 'https://vt.tiktok.com/ZS9R2ebuFdy4n-mSRUQ/'
+            },
+            {
+                id: 'keos-plus-small',
+                imageId: 'img-plus-small',
+                petType: 'dog',
+                name: '[Keos+] Dành riêng cho chó size nhỏ, vị thịt cừu & gạo',
+                intro: 'Hạt nhỏ vừa miệng cho cún size nhỏ, dùng nền thịt cừu và gạo để tăng độ ngon miệng và hỗ trợ tiêu hóa tốt hơn.',
+                shopeeUrl: 'https://s.shopee.vn/2g6Ti0pLZD',
+                tiktokUrl: 'https://vt.tiktok.com/ZS9R2eERXb3hx-90eru/'
+            },
+            {
+                id: 'keos-plus-protein',
+                imageId: 'img-plus-protein',
+                petType: 'dog',
+                name: '[Keos+] High Protein cho chó trưởng thành, vị gà & cừu',
+                intro: 'Dòng năng lượng cao cho cún hoạt động nhiều, bổ sung đạm chất lượng cùng glucosamine, chondroitin và L-carnitine hỗ trợ cơ xương khớp.',
+                shopeeUrl: 'https://s.shopee.vn/4frY5f6G48',
+                tiktokUrl: 'https://vt.tiktok.com/ZS9R2ecqQMKEH-1vVb0/'
+            },
+            {
+                id: 'keos-plus-hairball',
+                imageId: 'img-plus-hairball',
+                petType: 'cat',
+                name: '[Keos+] Hairball Control cho mèo trưởng thành, vị cá ngừ',
+                intro: 'Công thức giàu chất xơ tự nhiên giúp giảm búi lông, đồng thời bổ sung Omega 3, 6 và kẽm hữu cơ để da lông thêm khỏe đẹp.',
+                shopeeUrl: 'https://s.shopee.vn/70FSrv0reH',
+                tiktokUrl: 'https://vt.tiktok.com/ZS9R2eWh4gGj3-v4S1u/'
+            },
+            {
+                id: 'keos-plus-digestive',
+                imageId: 'img-plus-digestive',
+                petType: 'dog',
+                name: '[Keos+] Digestive Care cho chó trưởng thành, vị thịt cừu & gạo',
+                intro: 'Công thức dùng thịt cừu và gạo để tăng độ hợp khẩu vị, đồng thời hỗ trợ tiêu hóa và hấp thu tốt hơn cho cún trưởng thành.',
+                shopeeUrl: 'https://s.shopee.vn/6fccTHMOcn',
+                tiktokUrl: 'https://vt.tiktok.com/ZS9R2enDPBaNn-bF3MY/'
+            },
+            {
+                id: 'keos-plus-urinary',
+                imageId: 'img-plus-urinary',
+                petType: 'cat',
+                name: '[Keos+] Urinary Care cho mèo trưởng thành, vị cá biển',
+                intro: 'Công thức được tối ưu cho mèo dễ gặp vấn đề tiết niệu, hỗ trợ cân bằng pH nước tiểu và tăng sự thoải mái khi đi vệ sinh.',
+                shopeeUrl: 'https://s.shopee.vn/2BAD77Q2nX',
+                tiktokUrl: 'https://vt.tiktok.com/ZS9R2d1H1Somf-bpgST/'
+            }
         ];
-        
-        const bowlEmptyImage = document.getElementById('img-bowl-empty');
-        const bowlFullImage = document.getElementById('img-bowl-full');
 
-        // Array of negative item images (Vietnamese dishes). These images
-        // represent foods that should not be caught and will subtract
-        // points when collected. Each image is preloaded in the hidden
-        // asset section at the top of the document.
+        const productAssets = PRODUCT_CATALOG.map(product => ({
+            ...product,
+            img: document.getElementById(product.imageId)
+        }));
+
         const negativeImages = [
             document.getElementById('img-negative-comtam'),
             document.getElementById('img-negative-banhmi'),
@@ -484,36 +716,48 @@
             document.getElementById('img-negative-bunbo')
         ];
 
-        // UPGRADE: Enhanced bowl object with better scaling and effects
+        const bowlEmptyImage = document.getElementById('img-bowl-empty');
+        const bowlFullImage = document.getElementById('img-bowl-full');
+
+        const PET_LABELS = {
+            dog: 'bé cún',
+            cat: 'bé mèo'
+        };
+
+        let gameRunning = false;
+        let score = 0;
+        const maxLives = 3;
+        let lives = 3;
+        let playerName = 'Bạn';
+        let selectedPetType = 'dog';
+        let highScore = parseInt(localStorage.getItem('keosHighScore') || '0', 10);
+        let bags = [];
+        let particles = [];
+        let gameSpeed = 120;
+        let spawnInterval = 2;
+        let spawnTimer = 0;
+        let animationId = 0;
+        let flashOpacity = 0;
+        let shakeTime = 0;
+        let lastFrameTime = 0;
+        let caughtProductCounts = {};
+
         const bowl = {
             x: canvas.width / 2,
             y: canvas.height - 80,
             width: 200,
             height: 100,
-            speed: 25,
+            speed: 520,
             hasFood: false,
             targetX: canvas.width / 2,
-            // Use a constant smoothing factor for both desktop and mobile. A value of
-            // 0.2 provides responsive but smooth movement across devices.
-            smoothFactor: 0.2,
-            
+            followStrength: 14,
+
             draw() {
                 const img = this.hasFood ? bowlFullImage : bowlEmptyImage;
                 if (!img) return;
-                
                 const ratio = (img.naturalHeight / img.naturalWidth) || 0.45;
-                
-                // Dynamic bowl sizing: start with a large bowl and shrink it
-                // noticeably at specific score thresholds. This makes the
-                // change more pronounced for lower scores (most players do
-                // not exceed 100 points) and stops shrinking beyond 50 points.
-                // Fractions correspond to the portion of the canvas width
-                // occupied by the bowl. Adjust these arrays to tune the
-                // difficulty. The arrays are ordered from highest score
-                // threshold to lowest. When the player's score reaches a
-                // threshold, the corresponding fraction is selected.
                 const thresholds = [50, 40, 30, 20, 10, 0];
-                const fractions  = [0.14, 0.16, 0.19, 0.22, 0.25, 0.28];
+                const fractions = [0.14, 0.16, 0.19, 0.22, 0.25, 0.28];
                 let fraction = fractions[fractions.length - 1];
                 for (let i = 0; i < thresholds.length; i++) {
                     if (score >= thresholds[i]) {
@@ -521,41 +765,31 @@
                         break;
                     }
                 }
-                // Calculate target width based on fraction and clamp to
-                // reasonable bounds so the bowl never becomes too small or
-                // excessively large. Minimum width of 80px prevents the bowl
-                // from becoming too tiny on small screens, while maximum
-                // width of 260px keeps it from dominating the canvas.
                 const targetWidth = Math.min(260, Math.max(80, canvas.width * fraction));
                 const targetHeight = targetWidth * ratio;
                 this.width = targetWidth;
                 this.height = targetHeight;
-                
+
                 const drawX = this.x - this.width / 2;
                 const drawY = this.y - this.height;
-                
                 if (img.complete && img.naturalWidth !== 0) {
                     ctx.save();
                     ctx.imageSmoothingEnabled = true;
                     if ('imageSmoothingQuality' in ctx) {
                         ctx.imageSmoothingQuality = 'high';
                     }
-                    
-                    // UPGRADE: Add shadow effect
                     ctx.shadowColor = 'rgba(0,0,0,0.2)';
                     ctx.shadowBlur = 10;
                     ctx.shadowOffsetX = 3;
                     ctx.shadowOffsetY = 3;
-                    
                     ctx.drawImage(img, drawX, drawY, this.width, this.height);
                     ctx.restore();
                 }
             },
-            
-            update() {
-                // UPGRADE: Smooth movement with interpolation
-                this.x += (this.targetX - this.x) * this.smoothFactor;
-                
+
+            update(dt) {
+                const lerp = Math.min(1, this.followStrength * dt);
+                this.x += (this.targetX - this.x) * lerp;
                 const halfWidth = this.width / 2;
                 if (this.x < halfWidth) {
                     this.x = halfWidth;
@@ -567,65 +801,56 @@
                 }
                 this.y = canvas.height - 20;
             },
-            
-            // UPGRADE: Set target position for smooth movement
+
             setTarget(x) {
                 this.targetX = x;
             }
         };
 
-        // UPGRADE: Enhanced difficulty scaling with device-specific balancing
         function updateDifficulty() {
-            // Unified difficulty scaling across devices. The speed multiplier
-            // controls how quickly the falling speed increases with score,
-            // and spawnReduction controls how quickly the spawn interval shrinks.
-            const speedMultiplier = 0.04;
-            const spawnReduction = 1.5;
-            
-            gameSpeed = 2 + score * speedMultiplier;
-            spawnRate = Math.max(40, 120 - Math.floor(score * spawnReduction));
-            
-            // Update difficulty indicator
+            // Tính toán tốc độ dựa trên chiều cao canvas để trải nghiệm đồng nhất giữa các thiết bị.
+            // iOS có mật độ điểm ảnh và tỷ lệ khung hình khác khiến cảm giác rơi chậm hơn, nên
+            // nhân thêm hệ số tỉ lệ theo chiều cao canvas để tốc độ rơi tương đương trên điện thoại và máy tính.
+            const heightScale = canvas.height / 800;
+            gameSpeed = (120 + score * 2.4) * heightScale;
+            spawnInterval = Math.max(0.67, 2 - score * 0.025);
             updateDifficultyIndicator();
         }
-        
-        // UPGRADE: Show difficulty level
+
         function updateDifficultyIndicator() {
             const indicator = document.getElementById('difficulty-indicator');
             const levelText = document.getElementById('difficulty-level');
-            
             let level = 'Bình thường';
             if (score > 30) level = 'Khó';
             if (score > 60) level = 'Rất khó';
             if (score > 100) level = 'Cực khó';
-            
             levelText.textContent = level;
             indicator.classList.add('show');
         }
 
-        // UPGRADE: Enhanced particle system for visual effects
         class Particle {
             constructor(x, y, color = '#FFD700') {
                 this.x = x;
                 this.y = y;
-                this.vx = (Math.random() - 0.5) * 8;
-                this.vy = (Math.random() - 0.5) * 8 - 2;
-                this.life = 1.0;
+                this.vx = (Math.random() - 0.5) * 220;
+                this.vy = (Math.random() - 0.5) * 180 - 30;
+                this.life = 1;
+                this.decay = 1.9;
                 this.color = color;
                 this.size = Math.random() * 6 + 3;
             }
-            
-            update() {
-                this.x += this.vx;
-                this.y += this.vy;
-                this.vy += 0.2; // gravity
-                this.life -= 0.02;
-                this.size *= 0.98;
+
+            update(dt) {
+                this.x += this.vx * dt;
+                this.y += this.vy * dt;
+                this.vy += 420 * dt;
+                this.life -= this.decay * dt;
+                this.size *= Math.max(0.9, 1 - 1.6 * dt);
             }
-            
+
             draw() {
                 ctx.save();
-                ctx.globalAlpha = this.life;
+                ctx.globalAlpha = Math.max(0, this.life);
                 ctx.fillStyle = this.color;
                 ctx.shadowColor = this.color;
                 ctx.shadowBlur = 10;
@@ -636,87 +861,41 @@
             }
         }
 
-        // Countdown overlay element
-        const countdownOverlay = document.getElementById('countdown-overlay');
-
-        // Start countdown before game begins
-        function startCountdown() {
-            let count = 3;
-            const freqMap = {3: 440, 2: 660, 1: 880, 0: 1047};
-            countdownOverlay.textContent = count;
-            countdownOverlay.style.display = 'flex';
-            document.getElementById('hud').style.display = 'block';
-            gameRunning = false;
-            
-            playTone(freqMap[count] || 440, 0.2, 0.4);
-            const interval = setInterval(() => {
-                count--;
-                if (count > 0) {
-                    countdownOverlay.textContent = count;
-                    playTone(freqMap[count] || 440, 0.2, 0.4);
-                } else if (count === 0) {
-                    countdownOverlay.textContent = 'Go!';
-                    playTone(freqMap[count] || 1047, 0.3, 0.5);
-                } else {
-                    clearInterval(interval);
-                    countdownOverlay.style.display = 'none';
-                    gameRunning = true;
-                    update();
-                }
-            }, 1000);
+        function randomBagType() {
+            const rand = Math.random();
+            if (rand < 0.14) return 'negative';
+            if (rand < 0.22) return 'life';
+            if (rand < 0.34) return 'double';
+            return 'normal';
         }
 
-        // UPGRADE: Enhanced Bag class with better visuals
+        function randomProduct() {
+            return productAssets[Math.floor(Math.random() * productAssets.length)];
+        }
+
         class Bag {
             constructor() {
-                // Decide the type of this bag and choose an appropriate image.
-                // Probabilities: freeze 5%, magnet 5%, negative 10%, life 6%,
-                // double 12%, normal 62%. Negative items use custom images of
-                // Vietnamese dishes. Others reuse existing KEOS bag images.
-                const rand = Math.random();
-                if (rand < 0.05) {
-                    this.type = 'freeze';
-                    this.img = bagImageElements[Math.floor(Math.random() * bagImageElements.length)];
-                } else if (rand < 0.10) {
-                    this.type = 'magnet';
-                    this.img = bagImageElements[Math.floor(Math.random() * bagImageElements.length)];
-                } else if (rand < 0.20) {
-                    this.type = 'negative';
+                this.type = randomBagType();
+                this.product = null;
+                this.productId = null;
+                if (this.type === 'negative') {
                     this.img = negativeImages[Math.floor(Math.random() * negativeImages.length)];
-                } else if (rand < 0.26) {
-                    this.type = 'life';
-                    this.img = bagImageElements[Math.floor(Math.random() * bagImageElements.length)];
-                } else if (rand < 0.38) {
-                    this.type = 'double';
-                    this.img = bagImageElements[Math.floor(Math.random() * bagImageElements.length)];
                 } else {
-                    this.type = 'normal';
-                    this.img = bagImageElements[Math.floor(Math.random() * bagImageElements.length)];
+                    this.product = randomProduct();
+                    this.productId = this.product.id;
+                    this.img = this.product.img;
                 }
 
-                // Determine size based on canvas width. The base size is a fixed
-                // fraction of the canvas width. Negative items are sized
-                // identically to other bags. Minimum pixel width is enforced.
                 const baseSize = 0.07;
                 this.width = Math.max(55, canvas.width * baseSize);
                 const ratio = (this.img.naturalHeight / this.img.naturalWidth) || 1.5;
                 this.height = this.width * ratio;
-
-                // Initial position: random horizontal location above the canvas.
                 this.x = Math.random() * (canvas.width - this.width);
                 this.y = -this.height;
-
-                // Base fall speed. The actual speed will be multiplied by
-                // `gameSpeed` later. Speed variation adds randomness.
-                const baseSpeed = 0.75;
-                this.speed = (Math.random() * 0.5 + baseSpeed) * gameSpeed;
-
-                this.rotation = (Math.random() - 0.5) * 0.03;
+                this.speed = (Math.random() * 0.5 + 0.75) * gameSpeed;
+                this.rotation = (Math.random() - 0.5) * 1.2;
                 this.angle = 0;
-
-                // Intensity used for glow animations (not currently used for
-                // new item types but can be extended for special effects).
-                this.glowIntensity = 0;
+                this.horizontalSeed = Math.random() * Math.PI * 2;
             }
 
             draw() {
@@ -725,33 +904,13 @@
                 if ('imageSmoothingQuality' in ctx) {
                     ctx.imageSmoothingQuality = 'high';
                 }
-
                 ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
                 ctx.rotate(this.angle);
 
-                // Add glow effect for special bags. Use different colours depending
-                // on the bag type: green for life, yellow for double, blue for freeze,
-                // purple for magnet, red for negative. Normal bags have no glow.
                 if (this.type !== 'normal') {
-                    switch (this.type) {
-                        case 'life':
-                            ctx.shadowColor = '#00ff00';
-                            break;
-                        case 'double':
-                            ctx.shadowColor = '#ffff00';
-                            break;
-                        case 'freeze':
-                            ctx.shadowColor = '#29b6f6';
-                            break;
-                        case 'magnet':
-                            ctx.shadowColor = '#ab47bc';
-                            break;
-                        case 'negative':
-                            ctx.shadowColor = '#e53935';
-                            break;
-                        default:
-                            ctx.shadowColor = '#000';
-                    }
+                    if (this.type === 'life') ctx.shadowColor = '#00ff00';
+                    if (this.type === 'double') ctx.shadowColor = '#ffff00';
+                    if (this.type === 'negative') ctx.shadowColor = '#e53935';
                     ctx.shadowBlur = 15;
                 }
 
@@ -762,141 +921,82 @@
                     ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
                 }
 
-                // Overlay icons for special items. Draw an icon or text at the centre
-                // of the bag to indicate its effect.
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.shadowColor = '#000';
                 ctx.shadowBlur = 3;
                 if (this.type === 'double') {
-                    ctx.fillStyle = 'rgba(255, 215, 0, 0.95)';
-                    ctx.font = 'bold ' + Math.floor(this.width/3) + 'px sans-serif';
+                    ctx.fillStyle = 'rgba(255, 215, 0, 0.96)';
+                    ctx.font = 'bold ' + Math.floor(this.width / 3) + 'px sans-serif';
                     ctx.fillText('×2', 0, 0);
                 } else if (this.type === 'life') {
-                    ctx.fillStyle = 'rgba(0, 200, 83, 0.95)';
-                    ctx.font = 'bold ' + Math.floor(this.width/3.5) + 'px sans-serif';
+                    ctx.fillStyle = 'rgba(0, 200, 83, 0.96)';
+                    ctx.font = 'bold ' + Math.floor(this.width / 3.5) + 'px sans-serif';
                     ctx.fillText('❤️', 0, 0);
-                } else if (this.type === 'freeze') {
-                    ctx.fillStyle = 'rgba(41, 182, 246, 0.95)';
-                    ctx.font = 'bold ' + Math.floor(this.width/3.2) + 'px sans-serif';
-                    ctx.fillText('❄', 0, 0);
-                } else if (this.type === 'magnet') {
-                    ctx.fillStyle = 'rgba(171, 71, 188, 0.95)';
-                    ctx.font = 'bold ' + Math.floor(this.width/3.2) + 'px sans-serif';
-                    ctx.fillText('🧲', 0, 0);
                 } else if (this.type === 'negative') {
-                    ctx.fillStyle = 'rgba(229, 57, 53, 0.95)';
-                    ctx.font = 'bold ' + Math.floor(this.width/3) + 'px sans-serif';
+                    ctx.fillStyle = 'rgba(229, 57, 53, 0.96)';
+                    ctx.font = 'bold ' + Math.floor(this.width / 3) + 'px sans-serif';
                     ctx.fillText('-1', 0, 0);
                 }
                 ctx.restore();
             }
 
-            update() {
-                // Determine whether freeze or magnet effects are active
-                const now = Date.now();
-                const freezeActive = now < freezeUntil;
-                const magnetActive = now < magnetUntil;
-                const speedModifier = freezeActive ? 0.5 : 1;
-
-                // Move downward. When freeze is active, the fall speed is reduced.
-                this.y += this.speed * speedModifier;
-                this.angle += this.rotation;
-
-                // Horizontal movement: if magnet is active, attract towards the bowl
-                // centre; otherwise apply a gentle drift.
-                if (magnetActive && this.type !== 'negative') {
-                    // Compute horizontal difference between bag centre and bowl centre
-                    const centerX = this.x + this.width / 2;
-                    const targetX = bowl.x;
-                    const delta = targetX - centerX;
-                    // Apply a fraction of the difference to move the bag towards the bowl
-                    this.x += delta * 0.05;
-                } else {
-                    // Gentle horizontal drift when no magnet. The drift amplitude is
-                    // scaled by the current falling speed so that faster objects
-                    // wobble more. Use sine of y to oscillate left/right.
-                    const drift = Math.sin(this.y * 0.03) * this.speed * 0.2;
-                    this.x += drift;
-                }
-                // Clamp horizontal position to the canvas bounds
+            update(dt) {
+                this.y += this.speed * dt;
+                this.angle += this.rotation * dt;
+                const driftVelocity = Math.sin(this.y * 0.02 + this.horizontalSeed) * this.speed * 0.16;
+                this.x += driftVelocity * dt;
                 if (this.x < 0) this.x = 0;
                 if (this.x > canvas.width - this.width) this.x = canvas.width - this.width;
             }
         }
 
-        // UPGRADE: Enhanced input handling with better mobile support
         const keys = {};
-        let lastTouchX = null;
-        
-        window.addEventListener('keydown', e => { 
+
+        window.addEventListener('keydown', (e) => {
             keys[e.code] = true;
-            // Prevent arrow key scrolling
-            if(['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.code)) {
+            if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.code)) {
                 e.preventDefault();
             }
         });
-        
-        window.addEventListener('keyup', e => { 
+
+        window.addEventListener('keyup', (e) => {
             keys[e.code] = false;
         });
-        
+
         function moveBowl(clientX) {
-            // Move the bowl based on a pointer's X coordinate relative to the
-            // canvas. Without this adjustment, the bowl does not follow the
-            // cursor correctly when the canvas is letterboxed horizontally.
-            if (gameRunning) {
-                const rect = canvas.getBoundingClientRect();
-                const x = clientX - rect.left;
-                bowl.setTarget(x);
-            }
+            if (!gameRunning) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = clientX - rect.left;
+            bowl.setTarget(x);
         }
-        
-        // Mouse controls
-        canvas.addEventListener('mousemove', e => {
+
+        canvas.addEventListener('mousemove', (e) => {
             e.preventDefault();
             moveBowl(e.clientX);
         });
-        
-        // UPGRADE: Enhanced touch controls
-        canvas.addEventListener('touchstart', e => {
+
+        canvas.addEventListener('touchstart', (e) => {
             e.preventDefault();
             if (e.touches.length > 0) {
-                // Record the touch position for delta calculations. Do not
-                // adjust for canvas offset here, as the delta is based on raw
-                // clientX differences. The moveBowl function handles offset.
-                lastTouchX = e.touches[0].clientX;
                 moveBowl(e.touches[0].clientX);
             }
         }, { passive: false });
-        
-        canvas.addEventListener('touchmove', e => {
+
+        canvas.addEventListener('touchmove', (e) => {
             e.preventDefault();
             if (e.touches.length > 0) {
-                const touchX = e.touches[0].clientX;
-                // Calculate the change in X since the last touch event. This delta
-                // is used directly to adjust the bowl's target position. We do
-                // not call moveBowl() here because moveBowl() converts global
-                // coordinates to canvas-relative coordinates, which would
-                // incorrectly subtract the canvas's offset when adding a delta.
-                const deltaX = touchX - lastTouchX;
-                lastTouchX = touchX;
-                // Adjust the bowl target by the raw delta. The bowl's targetX is
-                // in canvas coordinates, and the CSS width of the canvas is the
-                // same as the drawn width, so the delta applies directly.
-                bowl.setTarget(bowl.targetX + deltaX);
+                moveBowl(e.touches[0].clientX);
             }
         }, { passive: false });
-        
-        canvas.addEventListener('touchend', e => {
+
+        canvas.addEventListener('touchend', (e) => {
             e.preventDefault();
-            lastTouchX = null;
         }, { passive: false });
 
-        // Audio setup
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         const audioCtx = new AudioContext();
-        
+
         function playTone(frequency, duration, volume = 0.3) {
             try {
                 const oscillator = audioCtx.createOscillator();
@@ -909,8 +1009,8 @@
                 gainNode.connect(audioCtx.destination);
                 oscillator.start();
                 oscillator.stop(audioCtx.currentTime + duration);
-            } catch (e) {
-                console.log('Audio error:', e);
+            } catch (error) {
+                console.log('Audio error:', error);
             }
         }
 
@@ -922,25 +1022,16 @@
             document.getElementById('lives-container').innerText = hearts;
         }
 
-        // Scoreboard management removed: high scores are still tracked, but there is no scoreboard list.
-
-        // Open Facebook share dialog with the player's result. The quote
-        // parameter is used to prefill the share text. Note that Facebook
-        // may ignore custom text depending on platform and privacy settings.
         function shareScore() {
-            // Compose a friendly message for sharing and the official game link.
-            const message = `${playerName} vừa đạt ${score} điểm trong KEOS Catch!\nHãy thử thách mình tại game KEOS Catch để nhận quà hấp dẫn!`;
+            const petLabel = PET_LABELS[selectedPetType];
+            const message = `${playerName} vừa đạt ${score} điểm trong KEOS Catch và đang chơi cùng ${petLabel}!`; 
             const link = 'https://gamekeos.vercel.app/';
-            // If the browser supports the Web Share API, use it to open the native
-            // share sheet. This allows the user to share via Messenger, Zalo,
-            // email or other apps with the message prefilled.
             if (navigator.share) {
                 navigator.share({
                     title: 'KEOS Catch',
-                    text: message.replace(/\n/g, '\n'),
+                    text: message,
                     url: link
                 }).catch(() => {
-                    // If share fails, fall back to copying and opening a Facebook dialog
                     if (navigator.clipboard && navigator.clipboard.writeText) {
                         navigator.clipboard.writeText(message).catch(() => {});
                     }
@@ -948,7 +1039,6 @@
                     window.open(fbUrl, '_blank');
                 });
             } else {
-                // Fallback: copy message to clipboard and open Facebook share dialog
                 if (navigator.clipboard && navigator.clipboard.writeText) {
                     navigator.clipboard.writeText(message).catch(() => {});
                 }
@@ -958,183 +1048,225 @@
         }
 
         function loseLife() {
-            lives--;
+            lives -= 1;
             updateLivesDisplay();
             flashOpacity = 0.6;
             playTone(180, 0.3, 0.45);
-            
-            // UPGRADE: Add particle effect when losing life
             for (let i = 0; i < 10; i++) {
-                particles.push(new Particle(bowl.x, bowl.y - bowl.height/2, '#ff4444'));
+                particles.push(new Particle(bowl.x, bowl.y - bowl.height / 2, '#ff4444'));
             }
-            
             if (lives <= 0) {
                 gameOver();
             }
         }
 
-        // UPGRADE: Enhanced main game loop with particle system
-        function update() {
+        function recordCaughtProduct(productId) {
+            if (!productId) return;
+            caughtProductCounts[productId] = (caughtProductCounts[productId] || 0) + 1;
+        }
+
+        function getRecommendedProduct() {
+            let bestProduct = null;
+            let bestCount = 0;
+            for (const product of productAssets) {
+                if (product.petType !== selectedPetType) continue;
+                const count = caughtProductCounts[product.id] || 0;
+                if (count > bestCount) {
+                    bestProduct = product;
+                    bestCount = count;
+                }
+            }
+            return { product: bestProduct, count: bestCount };
+        }
+
+        function renderRecommendation() {
+            const petLabel = PET_LABELS[selectedPetType];
+            const { product, count } = getRecommendedProduct();
+            if (!product || count <= 0) {
+                recommendationPanel.style.display = 'block';
+                recommendationPanel.innerHTML = `<p class="recommendation-empty">Bạn đang chơi cho ${petLabel}, nhưng ván này chưa hứng được mẫu hạt ${selectedPetType === 'dog' ? 'cho cún' : 'cho mèo'} nào nổi bật. Chơi lại thêm một ván để hệ thống gợi ý đúng gu hơn nhé.</p>`;
+                return;
+            }
+
+            recommendationPanel.style.display = 'block';
+            recommendationPanel.innerHTML = `
+                <div class="recommendation-card">
+                    <div class="recommendation-tag">Gợi ý hợp gu cho ${petLabel}</div>
+                    <h3>${product.name}</h3>
+                    <p class="recommendation-count">Bạn đã hứng được <strong>${count}</strong> lần trong ván này.</p>
+                    <p class="recommendation-copy">${product.intro}</p>
+                    <div class="marketplace-buttons">
+                        <a class="marketplace-link shopee" href="${product.shopeeUrl}" target="_blank" rel="noopener">Mở Shopee</a>
+                        <a class="marketplace-link tiktok" href="${product.tiktokUrl}" target="_blank" rel="noopener">Mở TikTok</a>
+                    </div>
+                </div>
+            `;
+        }
+
+        function clearRecommendation() {
+            recommendationPanel.innerHTML = '';
+            recommendationPanel.style.display = 'none';
+        }
+
+        function update(timestamp) {
             if (!gameRunning) return;
-            
+            if (!lastFrameTime) lastFrameTime = timestamp;
+            const dt = Math.min((timestamp - lastFrameTime) / 1000, 0.05);
+            lastFrameTime = timestamp;
+
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // UPGRADE: Animated background
-            backgroundOffset += 0.5;
-            
-            // Move bowl with arrow keys
-            if (keys['ArrowLeft']) bowl.setTarget(bowl.targetX - bowl.speed);
-            if (keys['ArrowRight']) bowl.setTarget(bowl.targetX + bowl.speed);
-            
-            bowl.update();
-            
-            // Bowl shake effect
+            updateDifficulty();
+
+            if (keys['ArrowLeft']) bowl.setTarget(bowl.targetX - bowl.speed * dt);
+            if (keys['ArrowRight']) bowl.setTarget(bowl.targetX + bowl.speed * dt);
+
+            bowl.update(dt);
+
             let originalX = bowl.x;
             let originalY = bowl.y;
             if (shakeTime > 0) {
                 bowl.x += (Math.random() - 0.5) * 10;
                 bowl.y += (Math.random() - 0.5) * 6;
-                shakeTime--;
+                shakeTime = Math.max(0, shakeTime - dt);
             }
             bowl.draw();
             bowl.x = originalX;
             bowl.y = originalY;
-            
-            updateDifficulty();
-            
-            frameCount++;
-            if (frameCount % spawnRate === 0) {
+
+            spawnTimer += dt;
+            while (spawnTimer >= spawnInterval) {
                 bags.push(new Bag());
+                spawnTimer -= spawnInterval;
             }
-            
-            // Handle bags
+
             for (let i = 0; i < bags.length; i++) {
                 const bag = bags[i];
-                bag.update();
+                bag.update(dt);
                 bag.draw();
-                
+
                 const bowlCenterY = bowl.y - bowl.height / 2;
                 const distY = (bowlCenterY + bowl.height * 0.15) - (bag.y + bag.height);
                 const distX = Math.abs(bowl.x - (bag.x + bag.width / 2));
-                
+
                 if (distY < 40 && distY > -bag.height * 0.25 && distX < bowl.width / 2) {
-                    // Bag caught!
                     let points = 1;
                     let toneFreq = 520;
                     let particleColor = '#FFD700';
 
-                    // Handle different bag types. Freeze and magnet provide
-                    // power-ups without extra points; negative items subtract points.
                     if (bag.type === 'double') {
                         points = 2;
                         toneFreq = 880;
                         particleColor = '#FFFF00';
-                        playTone(toneFreq, 0.15, 0.4);
                     } else if (bag.type === 'life') {
-                        // Grant an extra life up to maxLives; no score added
                         points = 0;
                         if (lives < maxLives) {
-                            lives++;
+                            lives += 1;
                             updateLivesDisplay();
                         }
                         toneFreq = 660;
                         particleColor = '#00ff00';
-                        playTone(toneFreq, 0.15, 0.4);
-                    } else if (bag.type === 'freeze') {
-                        // Activate freeze effect for 5 seconds
-                        points = 1;
-                        freezeUntil = Date.now() + 5000;
-                        toneFreq = 540;
-                        particleColor = '#29b6f6';
-                        playTone(toneFreq, 0.15, 0.4);
-                    } else if (bag.type === 'magnet') {
-                        // Activate magnet effect for 5 seconds
-                        points = 1;
-                        magnetUntil = Date.now() + 5000;
-                        toneFreq = 760;
-                        particleColor = '#ab47bc';
-                        playTone(toneFreq, 0.15, 0.4);
                     } else if (bag.type === 'negative') {
-                        // Subtract a point but ensure score does not go below zero
                         points = -1;
                         toneFreq = 240;
                         particleColor = '#e53935';
-                        playTone(toneFreq, 0.12, 0.4);
-                    } else {
-                        // Normal bag
-                        playTone(toneFreq, 0.12, 0.35);
                     }
 
+                    if (bag.type !== 'negative') {
+                        recordCaughtProduct(bag.productId);
+                    }
+
+                    playTone(toneFreq, bag.type === 'double' ? 0.15 : 0.12, 0.38);
                     score += points;
                     if (score < 0) score = 0;
                     document.getElementById('hud-score').innerText = score;
-
-                    // Enhanced visual feedback
                     flashOpacity = 0.8;
-                    shakeTime = 10;
+                    shakeTime = 0.16;
 
-                    // Add particle explosion
                     for (let j = 0; j < 15; j++) {
-                        particles.push(new Particle(
-                            bag.x + bag.width/2,
-                            bag.y + bag.height/2,
-                            particleColor
-                        ));
+                        particles.push(new Particle(bag.x + bag.width / 2, bag.y + bag.height / 2, particleColor));
                     }
 
-                    // Remove caught bag and continue with loop
                     bags.splice(i, 1);
-                    i--;
+                    i -= 1;
                     bowl.hasFood = true;
                     continue;
                 }
-                
+
                 if (bag.y > canvas.height + bag.height) {
-                    // Remove the bag that has fallen off-screen. Only deduct a life
-                    // for positive or special bags. Negative bags do not cost a life
-                    // when missed.
                     bags.splice(i, 1);
-                    i--;
+                    i -= 1;
                     if (bag.type !== 'negative') {
                         loseLife();
                     }
                 }
             }
-            
-            // UPGRADE: Update and draw particles
+
             for (let i = particles.length - 1; i >= 0; i--) {
                 const particle = particles[i];
-                particle.update();
+                particle.update(dt);
                 particle.draw();
-                
                 if (particle.life <= 0) {
                     particles.splice(i, 1);
                 }
             }
-            
-            // Flash overlay effect
+
             if (flashOpacity > 0) {
                 ctx.save();
                 ctx.fillStyle = 'rgba(255,255,255,' + flashOpacity.toFixed(2) + ')';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.restore();
-                flashOpacity *= 0.85;
+                flashOpacity = Math.max(0, flashOpacity - dt * 2.2);
             }
-            
+
             animationId = requestAnimationFrame(update);
+        }
+
+        function startCountdown() {
+            let count = 3;
+            const freqMap = { 3: 440, 2: 660, 1: 880, 0: 1047 };
+            countdownOverlay.textContent = count;
+            countdownOverlay.style.display = 'flex';
+            document.getElementById('hud').style.display = 'block';
+            gameRunning = false;
+            playTone(freqMap[count] || 440, 0.2, 0.4);
+            const interval = setInterval(() => {
+                count -= 1;
+                if (count > 0) {
+                    countdownOverlay.textContent = count;
+                    playTone(freqMap[count] || 440, 0.2, 0.4);
+                } else if (count === 0) {
+                    countdownOverlay.textContent = 'Go!';
+                    playTone(freqMap[count] || 1047, 0.3, 0.5);
+                } else {
+                    clearInterval(interval);
+                    countdownOverlay.style.display = 'none';
+                    gameRunning = true;
+                    lastFrameTime = 0;
+                    spawnTimer = 0;
+                    animationId = requestAnimationFrame(update);
+                }
+            }, 1000);
         }
 
         function startGame() {
             const nameInput = document.getElementById('player-name').value.trim();
+            const companionInput = document.querySelector('input[name="pet-companion"]:checked');
             if (!nameInput) {
                 alert('Bạn chưa nhập tên kìa!');
                 return;
             }
+            if (!companionInput) {
+                alert('Chọn giúp mình bé cún hay bé mèo nhé!');
+                return;
+            }
             playerName = nameInput;
+            selectedPetType = companionInput.value;
             document.getElementById('hud-name').innerText = playerName;
             document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('game-over-screen').classList.add('hidden');
+            clearRecommendation();
             resetVariables();
-            
+
             audioCtx.resume().catch(() => {});
             if (bgMusic) {
                 bgMusic.currentTime = 0;
@@ -1149,35 +1281,34 @@
             lives = 3;
             bags = [];
             particles = [];
-            gameSpeed = 2;
-            spawnRate = 120;
-            frameCount = 0;
+            gameSpeed = 120;
+            spawnInterval = 2;
+            spawnTimer = 0;
+            lastFrameTime = 0;
+            flashOpacity = 0;
+            shakeTime = 0;
+            caughtProductCounts = {};
             bowl.x = canvas.width / 2;
             bowl.targetX = canvas.width / 2;
             bowl.hasFood = false;
             document.getElementById('hud-score').innerText = score;
             updateLivesDisplay();
-            
-            // Hide difficulty indicator initially
             document.getElementById('difficulty-indicator').classList.remove('show');
         }
 
         function gameOver() {
             gameRunning = false;
             cancelAnimationFrame(animationId);
-            
             if (score > highScore) {
                 highScore = score;
                 localStorage.setItem('keosHighScore', highScore);
             }
-
-            // Scoreboard removed: no leaderboard update necessary
-
-            document.getElementById('final-message').innerText = `${playerName} ơi, bạn đạt ${score} điểm!`;
+            renderRecommendation();
+            const petLabel = PET_LABELS[selectedPetType];
+            document.getElementById('final-message').innerText = `${playerName} ơi, bạn đạt ${score} điểm! Xem gợi ý cho ${petLabel} ở bên dưới nhé.`;
             document.getElementById('high-score-display').innerText = highScore;
             document.getElementById('hud').style.display = 'none';
             document.getElementById('game-over-screen').classList.remove('hidden');
-
             if (bgMusic) {
                 bgMusic.pause();
                 bgMusic.currentTime = 0;
@@ -1186,6 +1317,7 @@
 
         function resetGame() {
             document.getElementById('game-over-screen').classList.add('hidden');
+            clearRecommendation();
             if (bgMusic) {
                 bgMusic.pause();
                 bgMusic.currentTime = 0;
@@ -1199,18 +1331,30 @@
             }
             startCountdown();
         }
-        
-        // UPGRADE: Handle window resize during gameplay
+
+        function backToStart() {
+            gameRunning = false;
+            cancelAnimationFrame(animationId);
+            document.getElementById('hud').style.display = 'none';
+            document.getElementById('game-over-screen').classList.add('hidden');
+            document.getElementById('start-screen').classList.remove('hidden');
+            clearRecommendation();
+            if (bgMusic) {
+                bgMusic.pause();
+                bgMusic.currentTime = 0;
+            }
+        }
+
         window.addEventListener('resize', () => {
             resizeCanvas();
-            // Recalculate bowl position on resize
-            bowl.targetX = Math.min(Math.max(bowl.targetX, bowl.width/2), canvas.width - bowl.width/2);
+            bowl.targetX = Math.min(Math.max(bowl.targetX, bowl.width / 2), canvas.width - bowl.width / 2);
+            bowl.x = Math.min(Math.max(bowl.x, bowl.width / 2), canvas.width - bowl.width / 2);
         });
-        
-        // UPGRADE: Prevent context menu on long press (mobile)
-        canvas.addEventListener('contextmenu', e => {
+
+        canvas.addEventListener('contextmenu', (e) => {
             e.preventDefault();
         });
     </script>
+
 </body>
 </html>
