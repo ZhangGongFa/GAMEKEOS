@@ -618,7 +618,8 @@
                 // Sử dụng URL sản phẩm cụ thể trên Shopee thay vì tìm kiếm chung
                 // Không có đường dẫn TikTok cụ thể cho phiên bản chó con nên giữ liên kết tìm kiếm làm mặc định
                 shopeeUrl: 'https://s.shopee.vn/15iWt2bur',
-                tiktokUrl: 'https://www.tiktok.com/search?q=Keos%20cho%20cho%20con%20ga%20trung%20sua'
+                // Cập nhật đường dẫn TikTok cụ thể cho hạt chó con
+                tiktokUrl: 'https://vt.tiktok.com/ZS9R2emfcGWpx-ZpS78/'
             },
             {
                 id: 'keos-dog-beef',
@@ -756,8 +757,10 @@
                 const img = this.hasFood ? bowlFullImage : bowlEmptyImage;
                 if (!img) return;
                 const ratio = (img.naturalHeight / img.naturalWidth) || 0.45;
+                // Giảm kích thước bát hứng để tăng độ khó khi người chơi đang có điểm thấp.
                 const thresholds = [50, 40, 30, 20, 10, 0];
-                const fractions = [0.14, 0.16, 0.19, 0.22, 0.25, 0.28];
+                // Ở điểm thấp, bát chiếm khoảng 25% chiều rộng; khi điểm cao giảm còn ~12%
+                const fractions = [0.12, 0.14, 0.16, 0.18, 0.22, 0.25];
                 let fraction = fractions[fractions.length - 1];
                 for (let i = 0; i < thresholds.length; i++) {
                     if (score >= thresholds[i]) {
@@ -811,9 +814,14 @@
             // Tính toán tốc độ dựa trên chiều cao canvas để trải nghiệm đồng nhất giữa các thiết bị.
             // iOS có mật độ điểm ảnh và tỷ lệ khung hình khác khiến cảm giác rơi chậm hơn, nên
             // nhân thêm hệ số tỉ lệ theo chiều cao canvas để tốc độ rơi tương đương trên điện thoại và máy tính.
+            // Điều chỉnh tốc độ rơi và tần suất xuất hiện để game hấp dẫn hơn.
+            // Tăng tốc độ cơ bản và gia tăng theo điểm, đồng thời rút ngắn khoảng cách giữa các lần rơi.
             const heightScale = canvas.height / 800;
-            gameSpeed = (120 + score * 2.4) * heightScale;
-            spawnInterval = Math.max(0.67, 2 - score * 0.025);
+            const baseSpeed = 180;
+            const speedGrowth = 3.5;
+            gameSpeed = (baseSpeed + score * speedGrowth) * heightScale;
+            // Giảm thời gian xuất hiện bao hạt để người chơi liên tục tương tác.
+            spawnInterval = Math.max(0.5, 1.8 - score * 0.03);
             updateDifficultyIndicator();
         }
 
